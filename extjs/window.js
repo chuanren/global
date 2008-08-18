@@ -136,7 +136,7 @@ new Ext.Viewport({
 //fix:
 Ext.smartWindow.top.body.setStyle({
 	backgroundImage: "url("+Ext.BLANK_IMAGE_URL.replace("s.gif","panel/top-bottom.gif")+")",
-	lineHeight: Ext.smartWindow.top.body.getHeight()
+	lineHeight: Ext.smartWindow.top.body.getHeight()+"px"
 });
 /********************************************/
 });
