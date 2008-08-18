@@ -11,20 +11,18 @@ How to Use? the example is following, notice modify the url:
 		<script src="enhance.js"></script>
 		<script src="window.js"></script>
 		<script>
-			var naviTreeRootConfig={
-				children: [{
-					text:'Tree1',
-					leaf:true,
-					href: "Tree1.htm"
-				},{
-					text:'Tree2',
-					children:[{
-						text:'Tree21',
-						leaf:true
-					}],
-					detail: "You will request a url, the response will be showed. enjoy."
-				}]
-			};
+			Ext.smartWindow.navi=[{
+				text:'Tree1',
+				leaf:true,
+				href: "Tree1.htm"
+			},{
+				text:'Tree2',
+				children:[{
+					text:'Tree21',
+					leaf:true
+				}],
+				detail: "You will request a url, the response will be showed. enjoy."
+			}];
 		</script>
 	</head>
 	<body>
@@ -51,29 +49,36 @@ How to Use? the example is following, notice modify the url:
 	</body>
 </html>
 */
+Ext.smartWindow={
+	navi: [{text:'Tree1',leaf:true,href: "Tree1.htm"},{text:'Tree2',children:[{text:'Tree21',leaf:true}],detail: "You will request a url, the response will be showed. enjoy."}],
+	top: "top",
+	detail: "detail",
+	main: "main",
+	info: "info",
+	infoCloseDeferId: null
+};
 Ext.Msg.status=function(msg,time){
-	if(info.collapsed){
-		info.body.update(msg);
-		info.expand();
+	if(Ext.smartWindow.info.collapsed){
+		Ext.smartWindow.info.body.update(msg);
+		Ext.smartWindow.info.expand();
 		if(time){
-			clearTimeout(infoCloseDeferId);
-			infoCloseDeferId=info.collapse.defer(time,info);
+			clearTimeout(Ext.smartWindow.infoCloseDeferId);
+			Ext.smartWindow.infoCloseDeferId=Ext.smartWindow.info.collapse.defer(time,Ext.smartWindow.info);
 		}
 	}else{
-		info.body.createChild({html:msg});
-		info.body.scroll("bottom",1000);
+		Ext.smartWindow.info.body.createChild({html:msg});
+		Ext.smartWindow.info.body.scroll("bottom",1000);
 	}
-	info.body.stopFx();
-	info.body.highlight();
+	Ext.smartWindow.info.body.stopFx();
+	Ext.smartWindow.info.body.highlight();
 };
-var infoCloseDeferId;
-var top=new Ext.Panel({
+Ext.smartWindow.top=new Ext.Panel({
 	region: 'north',
 	bodyStyle: "padding: 0 0 0 10px; background: transparent repeat-x 0 -5px;",
-	contentEl: "top",
+	contentEl: Ext.smartWindow.top,
 	margins: '0 0 5 0'
 });
-var detail=new Ext.Panel({
+Ext.smartWindow.detail=new Ext.Panel({
 	region: 'south',
 	height: 100,
 	split: true,
@@ -82,15 +87,15 @@ var detail=new Ext.Panel({
 	autoScroll: true,
 	title: 'Detail',
 	bodyStyle: 'padding: 10px; background: #eee; font-size: 12px;',
-	contentEl: "detail"
+	contentEl: Ext.smartWindow.detail
 });
-var main=new Ext.Panel({
+Ext.smartWindow.main=new Ext.Panel({
 	region: 'center',
 	autoScroll: true,
 	bodyStyle: "padding: 10px;",
-	contentEl: "main"
+	contentEl: Ext.smartWindow.main
 });
-var info=new Ext.Panel({
+Ext.smartWindow.info=new Ext.Panel({
 	region: 'south',
 	height: 100,
 	minHeight: 100,
@@ -100,42 +105,39 @@ var info=new Ext.Panel({
 	autoScroll: true,
 	title: 'Information',
 	bodyStyle: 'padding: 10px; background: #eee; font-size: 12px; color: red;',
-	contentEl: "info"
+	contentEl: Ext.smartWindow.info
 });
-var navi,west;
 Ext.EventManager.on(window,"load",function(){
 /********************************************/
 Ext.QuickTips.init();
-navi=new Ext.smartTreePanel({
+Ext.smartWindow.navi=new Ext.smartTreePanel({
 	region: "center",
-	target: main,
+	target: Ext.smartWindow.main,
 	title: "Navigation",
 	rootVisible: false,
-	rootConfig: naviTreeRootConfig
+	rootConfig: Ext.smartWindow.navi
 });
-navi.addListener("click",function(n){
+Ext.smartWindow.navi.addListener("click",function(n){
 	if(n.attributes.detail){
-		detail.body.update(n.attributes.detail);
-		detail.expand();
+		Ext.smartWindow.detail.body.update(n.attributes.detail);
+		Ext.smartWindow.detail.expand();
 	}else{
-		detail.collapse();
+		Ext.smartWindow.detail.collapse();
 	}
 });
-west=new Ext.Panel({
-	layout: 'border',
-	region:'west',
-	border: false,
-	width: 200,
-	minWidth: 100,
-	split:true,
-	items: [navi, detail]
-});
-view=new Ext.Viewport({
+new Ext.Viewport({
 	layout: "border",
-    items: [top, west, main, info]
+    items: [
+		Ext.smartWindow.top,
+		new Ext.Panel({layout: 'border',region:'west',border: false,width: 200,minWidth: 100,split:true,items: [Ext.smartWindow.navi, Ext.smartWindow.detail]}),
+		Ext.smartWindow.main,
+		Ext.smartWindow.info
+	]
 });
-//fix some details:
-top.body.dom.style.backgroundImage="url("+Ext.BLANK_IMAGE_URL.replace("s.gif","panel/top-bottom.gif")+")";
-top.body.dom.style.lineHeight=top.body.dom.offsetHeight+"px";
+//fix:
+Ext.smartWindow.top.body.setStyle({
+	backgroundImage: "url("+Ext.BLANK_IMAGE_URL.replace("s.gif","panel/top-bottom.gif")+")",
+	lineHeight: Ext.smartWindow.top.body.getHeight()+"px"
+});
 /********************************************/
 });
