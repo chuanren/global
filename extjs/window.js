@@ -1,4 +1,3 @@
-//version: js@liuchuanren.comc.cn, 08/06/08
 /*
 How to Use? the example is following, notice modify the url:
 -------------------------------------------------
@@ -137,7 +136,7 @@ new Ext.Viewport({
 //fix:
 Ext.smartWindow.top.body.setStyle({
 	backgroundImage: "url("+Ext.BLANK_IMAGE_URL.replace("s.gif","panel/top-bottom.gif")+")",
-	lineHeight: Ext.smartWindow.top.body.getHeight()+"px"
+	lineHeight: Ext.smartWindow.top.body.getHeight()
 });
 /********************************************/
 });
