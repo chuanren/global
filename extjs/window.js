@@ -114,7 +114,7 @@ Ext.smartWindow.navi=new Ext.smartTreePanel({
 	region: "center",
 	target: Ext.smartWindow.main,
 	title: "Navigation",
-	rootVisible: false,
+	rootVisible: true,
 	rootConfig: Ext.smartWindow.navi
 });
 Ext.smartWindow.navi.addListener("click",function(n){
