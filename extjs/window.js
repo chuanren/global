@@ -109,7 +109,7 @@ Ext.smartWindow.info=new Ext.Panel({
 });
 Ext.EventManager.on(window,"load",function(){
 /********************************************/
-Ext.QuickTips.init();
+Ext.QuickTips.init();alert(Ext.smartWindow.navi);
 Ext.smartWindow.navi=new Ext.smartTreePanel({
 	region: "center",
 	target: Ext.smartWindow.main,
