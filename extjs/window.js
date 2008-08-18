@@ -109,13 +109,13 @@ Ext.smartWindow.info=new Ext.Panel({
 });
 Ext.EventManager.on(window,"load",function(){
 /********************************************/
-Ext.QuickTips.init();alert(Ext.smartWindow.navi);
+Ext.QuickTips.init();
 Ext.smartWindow.navi=new Ext.smartTreePanel({
 	region: "center",
 	target: Ext.smartWindow.main,
 	title: "Navigation",
-	rootVisible: true,
-	rootConfig: Ext.smartWindow.navi
+	rootVisible: false,
+	rootConfig: {children: Ext.smartWindow.navi}
 });
 Ext.smartWindow.navi.addListener("click",function(n){
 	if(n.attributes.detail){
