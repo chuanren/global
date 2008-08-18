@@ -1,0 +1,47 @@
+<HTML>  
+  <HEAD>  
+   </HEAD>  
+  <BODY>  
+  <form name="form1" method="post" action="">  
+      <table>  
+          <tr>    
+              <td><SELECT id=select1 name=select1>  
+                      <OPTION selected value=1 id=select01>1</OPTION>  
+                      <OPTION value=2>3</OPTION>  
+                  </SELECT>    
+              </td>  
+              <td>    
+                  <SELECT>
+                      <OPTION value=3>3</OPTION>  
+                  </SELECT>    
+                  <SCRIPT LANGUAGE=vbscript>  
+  <!--     
+  dim Province,City  
+  dim obj,lastObj  
+  lastObj="form1.select01"  
+  obj="form1.select01"  
+  window.execScript   "form1.select01.style.display='block'"   ,"vbs"  
+  Province="北京"  
+  City="北京"  
+  Sub   select1_onchange  
+  obj=select1.value  
+  if   obj<>lastObj   and   isobject(eval(obj))   then  
+  window.execScript   Obj   &   ".style.display='block'"   ,"vbs"  
+  window.execScript     lastObj   &   ".style.display='none'"   ,"vbs"  
+  Province=select1.options(select1.selectedIndex).innertext  
+  window.execScript   "City="   &   Obj   &   ".value"   ,"vbs"  
+  lastObj=select1.value  
+  end   if  
+  End   Sub  
+  sub SubMe()  
+  window.execScript   "City="   &   Obj   &   ".value"   ,"vbs"  
+  window.location.href="test.asp?Province="   &   Province   &   "&City="   &   City  
+  End Sub  
+  -->  
+  </SCRIPT></td>  
+              <td><input type="button" name="Submit" value="按钮" onClick="vbs:SubMe"></td>  
+          </tr>
+      </table>
+  </form>
+  </BODY>
+  </HTML>
