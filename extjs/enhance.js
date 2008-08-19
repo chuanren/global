@@ -1308,7 +1308,7 @@ Ext.smartTreePanelConfig=function(cfg){return Ext.merge(cfg||{},{
 					if(!success){
 						Ext.Msg.status("Error occured when you click \""+n.attributes.text+"\": "+response.responseText,3000);
 					}
-					this.body.unmask();
+					this.body.unmask.defer(500,this.body);
 				},
 				scope: this
 			});
