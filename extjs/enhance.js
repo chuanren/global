@@ -1295,6 +1295,7 @@ Ext.smartTreePanelConfig=function(cfg){return Ext.merge(cfg||{},{
 			n.attributes.mask||(n.attributes.mask=n.attributes.target.parent());
 			n.attributes.mask=n.attributes.mask.body||Ext.get(n.attributes.mask);
 			if(n.attributes.mask.isMasked())return false;
+			this.body.mask();
 		},
 		click: function(n){
 			Ext.EventObject.stopEvent();
@@ -1307,7 +1308,9 @@ Ext.smartTreePanelConfig=function(cfg){return Ext.merge(cfg||{},{
 					if(!success){
 						Ext.Msg.status("Error occured when you click \""+n.attributes.text+"\": "+response.responseText,3000);
 					}
-				}
+					this.body.unmask();
+				},
+				scope: this
 			});
 		},
 		contextmenu: Ext.emptyFn
