@@ -1287,14 +1287,14 @@ Ext.smartTreePanelConfig=function(cfg){return Ext.merge(cfg||{},{
 	listeners: {
 		click: function(n){
 			//href
-			if(!n.attributes.href)return false;
+			if(!n.attributes.href)return;
 			//target
 			n.attributes.target||(n.attributes.target=this.initialConfig.target||Ext.getBody());
 			n.attributes.target=n.attributes.target.body||Ext.get(n.attributes.target);
 			//mask
 			n.attributes.mask||(n.attributes.mask=n.attributes.target.parent());
 			n.attributes.mask=n.attributes.mask.body||Ext.get(n.attributes.mask);
-			if(n.attributes.mask.isMasked())return false;
+			if(n.attributes.mask.isMasked())return;
 			//do the load
 			Ext.EventObject.stopEvent();
 			this.body.mask();
