@@ -116,7 +116,7 @@ Ext.smartWindow.navi=new Ext.smartTreePanel({
 	rootVisible: false,
 	rootConfig: {children: Ext.smartWindow.navi}
 });
-Ext.smartWindow.navi.addListener("click",function(n){
+Ext.smartWindow.navi.on("click",function(n){
 	if(n.attributes.detail){
 		Ext.smartWindow.detail.body.update(n.attributes.detail);
 		Ext.smartWindow.detail.expand();

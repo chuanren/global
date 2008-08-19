@@ -1286,7 +1286,7 @@ Ext.smartFormPanel=Ext.extend(Ext.FormPanel,{
 Ext.smartTreePanelConfig=function(){return {
 	autoScroll: true,
 	listeners: {
-		beforeclick: function(n){return false;
+		beforeclick: function(n){
 			//href
 			if(!n.attributes.href)return false;
 			//target
