@@ -42,9 +42,9 @@ How to Use? the example is following, notice modify the url:
 -------------------------------------------------
 	-->
 		<h1 id="top">I@example</h1>
-		<div id="detail">Additional details will display here.</div>
+		<div id="detail">Additional navi details.</div>
 		<div id="main"><a href=http://www.iexample.com.cn>I@example</a></div>
-		<div id="info">Some important infomations will display here.</div>
+		<div id="info">Important runtime infomations.</div>
 	</body>
 </html>
 */
