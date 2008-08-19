@@ -1220,7 +1220,7 @@ Ext.apply(Ext.form.Field.msgFx,{//so I can use msgFx: "highlight" in initialConf
 	}
 });
 //new object
-Ext.smartButtonConfig=function(){return {
+Ext.smartButtonConfig=function(cfg){return Ext.merge(cfg||{},{
 	style: "cssFloat: left; styleFloat: left; margin: 5px;",
 	handler: function(b){
 		if(b.url){
@@ -1235,14 +1235,13 @@ Ext.smartButtonConfig=function(){return {
 			});
 		}
 	}
-}};
+});};
 Ext.smartButton=Ext.extend(Ext.Button,{
 	constructor: function(cfg){
-		cfg=Ext.merge(cfg||{},Ext.smartButtonConfig());
-		Ext.smartButton.superclass.constructor.call(this,cfg);
+		Ext.smartButton.superclass.constructor.call(this,Ext.smartButtonConfig(cfg));
 	}
 });
-Ext.smartFormPanelConfig=function(){return {
+Ext.smartFormPanelConfig=function(cfg){return Ext.merge(cfg||{},{
 	xtype: "form",
 	frame: true,
 	buttonAlign: "left",
@@ -1265,10 +1264,10 @@ Ext.smartFormPanelConfig=function(){return {
 		}
 	},
 	reader: new Ext.data.JsonReader()
-}};
+});};
 Ext.smartFormPanel=Ext.extend(Ext.FormPanel,{
 	constructor: function(cfg){
-		cfg=Ext.merge(cfg||{},Ext.smartFormPanelConfig(),{panel:this});
+		cfg=Ext.merge(Ext.smartFormPanelConfig(cfg),{panel:this});
 		Ext.smartFormPanel.superclass.constructor.call(this,cfg);
 		if(cfg.autoLoadData)this.load();
 	},
@@ -1283,7 +1282,7 @@ Ext.smartFormPanel=Ext.extend(Ext.FormPanel,{
 		Ext.smartFormPanel.superclass.submit.call(this,cfg);
 	}
 });
-Ext.smartTreePanelConfig=function(){return {
+Ext.smartTreePanelConfig=function(cfg){return Ext.merge(cfg||{},{
 	autoScroll: true,
 	listeners: {
 		beforeclick: function(n){
@@ -1314,10 +1313,10 @@ Ext.smartTreePanelConfig=function(){return {
 		contextmenu: Ext.emptyFn
 	},
 	loader: new Ext.tree.TreeLoader()
-}};
+});};
 Ext.smartTreePanel=Ext.extend(Ext.tree.TreePanel,{
 	constructor: function(cfg){
-		cfg=Ext.merge(cfg||{},Ext.smartTreePanelConfig());
+		cfg=Ext.smartTreePanelConfig(cfg);
 		cfg.root||(cfg.root=new Ext.tree.AsyncTreeNode(cfg.rootConfig));
 		Ext.smartTreePanel.superclass.constructor.call(this,cfg);
 	}
@@ -1388,13 +1387,13 @@ Ext.tree.ColumnNodeUI = Ext.extend(Ext.tree.TreeNodeUI, {
         this.textNode = cs[3].firstChild;
     }
 });
-Ext.columnTreePanelConfig=function(){return {
+Ext.columnTreePanelConfig=function(cfg){return Ext.merge(cfg||{},{
 	rootVisible:false,
 	root: new Ext.tree.AsyncTreeNode()
-}};
+});};
 Ext.columnTreePanel=Ext.extend(Ext.tree.ColumnTree,{
 	constructor: function(cfg){
-		cfg=Ext.merge(cfg||{},Ext.columnTreePanelConfig());
+		cfg=Ext.columnTreePanelConfig(cfg);
 		cfg.loader||(cfg.loader=new Ext.tree.TreeLoader({
 			url:cfg.url,
 			baseAttrs: {uiProvider: Ext.tree.ColumnNodeUI},
