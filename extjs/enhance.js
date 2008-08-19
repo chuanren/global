@@ -1286,27 +1286,30 @@ Ext.smartFormPanel=Ext.extend(Ext.FormPanel,{
 Ext.smartTreePanelConfig=function(){return {
 	autoScroll: true,
 	listeners: {
+		beforeclick: function(n){
+			//href
+			if(!n.attributes.href)return false;
+			//target
+			n.attributes.target||(n.attributes.target=this.initialConfig.target||Ext.getBody());
+			n.attributes.target=n.attributes.target.body||Ext.get(n.attributes.target);
+			//mask
+			n.attributes.mask||(n.attributes.mask=n.attributes.target.parent());
+			n.attributes.mask=n.attributes.mask.body||Ext.get(n.attributes.mask);
+			if(n.attributes.mask.isMasked())return false;
+		},
 		click: function(n){
 			Ext.EventObject.stopEvent();
-			var href=n.attributes.href;
-			if(href){
-				var target=n.attributes.target||this.initialConfig.target||Ext.getBody();
-				//id element panel
-				target=target.body||Ext.get(target);
-				var mask=target.parent();
-				mask.mask("Loading...");
-				target.load({
-					url:href,
-					params: {_smartTreePanel: new Date().getTime()},
-					scripts: true,
-					callback:function(e,success,response,op){
-						mask.unmask();
-						if(!success){
-							Ext.Msg.status("Error occured when you click \""+n.attributes.text+"\": "+response.responseText,3000);
-						}
+			n.attributes.mask.mask("Loading...");
+			n.attributes.target.load({
+				url: n.attributes.href,
+				scripts: true,
+				callback:function(e,success,response,op){
+					n.attributes.mask.unmask();
+					if(!success){
+						Ext.Msg.status("Error occured when you click \""+n.attributes.text+"\": "+response.responseText,3000);
 					}
-				});
-			}
+				}
+			});
 		},
 		contextmenu: Ext.emptyFn
 	},
