@@ -1285,7 +1285,7 @@ Ext.smartFormPanel=Ext.extend(Ext.FormPanel,{
 Ext.smartTreePanelConfig=function(cfg){return Ext.merge(cfg||{},{
 	autoScroll: true,
 	listeners: {
-		beforeclick: function(n){
+		click: function(n){
 			//href
 			if(!n.attributes.href)return false;
 			//target
@@ -1295,10 +1295,9 @@ Ext.smartTreePanelConfig=function(cfg){return Ext.merge(cfg||{},{
 			n.attributes.mask||(n.attributes.mask=n.attributes.target.parent());
 			n.attributes.mask=n.attributes.mask.body||Ext.get(n.attributes.mask);
 			if(n.attributes.mask.isMasked())return false;
-			this.body.mask();
-		},
-		click: function(n){
+			//do the load
 			Ext.EventObject.stopEvent();
+			this.body.mask();
 			n.attributes.mask.mask("Loading...");
 			n.attributes.target.load({
 				url: n.attributes.href,
