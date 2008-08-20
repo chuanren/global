@@ -111,7 +111,7 @@ Ext.EventManager.on(window,"load",function(){
 Ext.QuickTips.init();
 Ext.smartWindow.navi=new Ext.smartTreePanel({
 	region: "center",
-	target: Ext.smartWindow.main,
+	hrefTarget: Ext.smartWindow.main,
 	title: "Navigation",
 	rootVisible: false,
 	rootConfig: {children: Ext.smartWindow.navi}
