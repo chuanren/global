@@ -1,3 +1,299 @@
+//version: js@liuchuanren.com.cn, 08/09/08
+//function
+Ext.IMAGE_URL=function(sGif){
+	return Ext.BLANK_IMAGE_URL.replace("s.gif",sGif);
+};
+Ext.merge=function(a,b){//merge hash just subhash or undefined attribute.
+	if(!a)return a=b;
+	var i;
+	for(i in b){
+		switch(typeof a[i]){
+			case "function":
+				break;
+			case "object":
+				a[i]=Ext.merge(a[i],b[i]);
+				break;
+			case "undefined":
+				a[i]=b[i];
+				break;
+		}
+	}
+	for(i=2;i<arguments.length;i++)a=Ext.merge(a,arguments[i]);
+	return a;
+};
+Ext.MessageBox.status=function(msg,time){
+	//this empty function do nothing is used following in this script.
+	//rewrite to show msg in the period of time
+}
+//prototype
+Ext.override(Ext.Component,{
+	mask: function(msg){
+		this.getEl().mask(msg);
+	},
+	reset: function(){
+		this.findParentBy(function(o){return typeof o.reset=="function";}).reset();
+	},
+	submit: function(cfg){
+		this.findParentBy(function(o){return typeof o.submit=="function";}).submit(cfg);
+	},
+	unmask: function(){
+		this.getEl().unmask();
+	}
+});
+Ext.override(Ext.FormPanel,{
+	getValues: function(asString){return this.form.getValues(asString);},
+	isValid: function(){return this.form.isValid();},
+	reset: function(){this.form.reset();},
+	submit: function(cfg){this.form.submit(cfg);}
+});
+Ext.override(Ext.tree.TreeNode,{
+/*	eachDescendant: function(f,scope){
+		var i;
+		for(i=0;i<this.childNodes.length;i++){
+			if(f.call(scope,this.childNodes[i])){
+				this.childNodes[i].eachDescendant(f,scope);
+			}else{
+				break;
+			}
+		}
+	},
+*/	findDescendantBy: function(f,scope){
+		var node;
+		this.eachChild(function(n){
+			if(f.call(this,n)){
+				node=n;
+				return false;
+			}else if(n.childNodes){
+				if(n=n.findDescendantBy(f,scope)){
+					node=n;
+					return false;
+				}else{
+					return true;
+				}
+			}
+		},scope);
+		return node;
+	}
+});
+//new method
+Ext.apply(Ext.form.Field.msgFx,{//so I can use msgFx: "highlight" in initialConfig of Field.
+	highlight: {
+		show: function(A,B){A.highlight();},
+		hide: function(A,B){A.stopFx();A.setDisplayed(false).update("");}
+	},
+	frame: {
+		show: function(A,B){A.frame();},
+		hide: function(A,B){A.stopFx();A.setDisplayed(false).update("");}
+	}
+});
+//new object
+Ext.smartButtonConfig=function(cfg){return Ext.merge(cfg||{},{
+	style: "cssFloat: left; styleFloat: left; margin: 5px;",
+	handler: function(b){
+		if(b.url){
+			Ext.Ajax.request({
+				url: b.url,
+				success: function(r){
+					Ext.Msg.status(b.text+": "+r.responseText,1000);
+				},
+				failure: function(r){
+					Ext.Msg.alert("Alert",b.text+": "+r.responseText);
+				}
+			});
+		}
+	}
+});};
+Ext.smartButton=Ext.extend(Ext.Button,{
+	constructor: function(cfg){
+		Ext.smartButton.superclass.constructor.call(this,Ext.smartButtonConfig(cfg));
+	}
+});
+Ext.smartFormPanelConfig=function(cfg){return Ext.merge(cfg||{},{
+	xtype: "form",
+	frame: true,
+	buttonAlign: "left",
+	defaults: {
+		xtype: "textfield",
+		width: 300,
+		maxLength: 100,
+		msgTarget: "under",
+		msgFx: "highlight",
+		validationEvent: "blur"
+	},
+	buttons: [{text: 'Submit',handler: function(){this.submit();}}],
+	listeners: {
+		actioncomplete: function(form,action){
+			Ext.Msg.status("Form action complete: "+action.type+"("+(action.result&&action.result.success?"Success":"*")+")",1000);
+			if(action.type!="load"&&form.autoLoadData)form.panel.load();
+		},
+		actionfailed: function(form,action){
+			Ext.Msg.status("Form action failed: "+action.type+"("+action.failureType+")",3000);
+		}
+	},
+	reader: new Ext.data.JsonReader()
+});};
+Ext.smartFormPanel=Ext.extend(Ext.FormPanel,{
+	constructor: function(cfg){
+		cfg=Ext.merge(Ext.smartFormPanelConfig(cfg),{panel:this});
+		Ext.smartFormPanel.superclass.constructor.call(this,cfg);
+		if(cfg.autoLoadData)this.load();
+	},
+	load: function(cfg){
+		cfg=Ext.merge(cfg||{},{params: {action: "load"},waitMsg: "Loading Form's Data..."});
+		if(!this.url&&!cfg.url)return;
+		Ext.smartFormPanel.superclass.load.call(this,cfg);
+	},
+	submit: function(cfg){
+		cfg=Ext.merge(cfg||{},{params: {action: "submit"},waitMsg: "Submiting Form's Data..."});
+		if(!this.url&&!cfg.url)return;
+		Ext.smartFormPanel.superclass.submit.call(this,cfg);
+	}
+});
+Ext.smartTreePanelConfig=function(cfg){return Ext.merge(cfg||{},{
+	autoScroll: true,
+	listeners: {
+		click: function(n){
+			//href
+			if(!n.attributes.href)return;
+			//target
+			n.attributes.target||(n.attributes.target=this.initialConfig.target||Ext.getBody());
+			n.attributes.target=n.attributes.target.body||Ext.get(n.attributes.target);
+			//mask
+			n.attributes.mask||(n.attributes.mask=n.attributes.target.parent());
+			n.attributes.mask=n.attributes.mask.body||Ext.get(n.attributes.mask);
+			if(n.attributes.mask.isMasked())return;
+			//do the load
+			Ext.EventObject.stopEvent();
+			this.body.mask();
+			n.attributes.mask.mask("Loading...");
+			n.attributes.target.load({
+				url: n.attributes.href,
+				scripts: true,
+				callback:function(e,success,response,op){
+					n.attributes.mask.unmask();
+					if(!success){
+						Ext.Msg.status("Error occured when you click \""+n.attributes.text+"\": "+response.responseText,3000);
+					}
+					this.body.unmask.defer(500,this.body);
+				},
+				scope: this
+			});
+		},
+		contextmenu: Ext.emptyFn
+	},
+	loader: new Ext.tree.TreeLoader()
+});};
+Ext.smartTreePanel=Ext.extend(Ext.tree.TreePanel,{
+	constructor: function(cfg){
+		cfg=Ext.smartTreePanelConfig(cfg);
+		cfg.root||(cfg.root=new Ext.tree.AsyncTreeNode(cfg.rootConfig));
+		Ext.smartTreePanel.superclass.constructor.call(this,cfg);
+	}
+});
+Ext.tree.ColumnTree = Ext.extend(Ext.tree.TreePanel, {
+    lines:false,
+    borderWidth: Ext.isBorderBox ? 0 : 2,
+    cls:'x-column-tree',    
+    onRender : function(){
+        Ext.tree.ColumnTree.superclass.onRender.apply(this, arguments);
+        this.headers = this.body.createChild({cls:'x-tree-headers'},this.innerCt.dom);
+        var cols = this.columns, c;
+        var totalWidth = 0;
+        for(var i = 0, len = cols.length; i < len; i++){
+             c = cols[i];
+             totalWidth += c.width;
+             this.headers.createChild({
+                 cls:'x-tree-hd ' + (c.cls?c.cls+'-hd':''),
+                 cn: {
+                     cls:'x-tree-hd-text',
+                     html: c.header
+                 },
+                 style:'width:'+(c.width-this.borderWidth)+'px;'
+             });
+        }
+        this.headers.createChild({cls:'x-clear'});
+        this.headers.setWidth(totalWidth);
+        this.innerCt.setWidth(totalWidth);
+    }
+});
+Ext.tree.ColumnNodeUI = Ext.extend(Ext.tree.TreeNodeUI, {
+    focus: Ext.emptyFn,
+    renderElements : function(n, a, targetNode, bulkRender){
+        this.indentMarkup = n.parentNode ? n.parentNode.ui.getChildIndent() : '';
+        var t = n.getOwnerTree();
+        var cols = t.columns;
+        var bw = t.borderWidth;
+        var c = cols[0];
+        var buf = [
+             '<li class="x-tree-node"><div ext:tree-node-id="',n.id,'" class="x-tree-node-el x-tree-node-leaf ', a.cls,'">',
+                '<div class="x-tree-col" style="width:',c.width-bw,'px;">',
+                    '<span class="x-tree-node-indent">',this.indentMarkup,"</span>",
+                    '<img src="', this.emptyIcon, '" class="x-tree-ec-icon x-tree-elbow">',
+                    '<img src="', a.icon || this.emptyIcon, '" class="x-tree-node-icon',(a.icon ? " x-tree-node-inline-icon" : ""),(a.iconCls ? " "+a.iconCls : ""),'" unselectable="on">',
+                    '<a hidefocus="on" class="x-tree-node-anchor" href="',a.href ? a.href : "#",'" tabIndex="1" ',
+                    a.hrefTarget ? ' target="'+a.hrefTarget+'"' : "", '>',
+                    '<span unselectable="on">', n.text || (c.renderer ? c.renderer(a[c.dataIndex], n, a) : a[c.dataIndex]),"</span></a>",
+                "</div>"];
+        for(var i = 1, len = cols.length; i < len; i++){
+             c = cols[i];
+             buf.push('<div class="x-tree-col ',(c.cls?c.cls:''),'" style="width:',c.width-bw,'px;">',
+                        '<div class="x-tree-col-text">',(c.renderer ? c.renderer(a[c.dataIndex], n, a) : a[c.dataIndex]),"</div>",
+                      "</div>");
+        }
+        buf.push('<div class="x-clear"></div></div>','<ul class="x-tree-node-ct" style="display:none;"></ul>',"</li>");
+        if(bulkRender !== true && n.nextSibling && n.nextSibling.ui.getEl()){
+            this.wrap = Ext.DomHelper.insertHtml("beforeBegin", n.nextSibling.ui.getEl(), buf.join(""));
+        }else{
+            this.wrap = Ext.DomHelper.insertHtml("beforeEnd", targetNode, buf.join(""));
+        }
+        this.elNode = this.wrap.childNodes[0];
+        this.ctNode = this.wrap.childNodes[1];
+        var cs = this.elNode.firstChild.childNodes;
+        this.indentNode = cs[0];
+        this.ecNode = cs[1];
+        this.iconNode = cs[2];
+        this.anchor = cs[3];
+        this.textNode = cs[3].firstChild;
+    }
+});
+Ext.columnTreePanelConfig=function(cfg){return Ext.merge(cfg||{},{
+	rootVisible:false,
+	root: new Ext.tree.AsyncTreeNode()
+});};
+Ext.columnTreePanel=Ext.extend(Ext.tree.ColumnTree,{
+	constructor: function(cfg){
+		cfg=Ext.columnTreePanelConfig(cfg);
+		cfg.loader||(cfg.loader=new Ext.tree.TreeLoader({
+			url:cfg.url,
+			baseAttrs: {uiProvider: Ext.tree.ColumnNodeUI},
+			listeners: {
+				beforeload: function(){this.panel.body.mask("Loading...");},
+				load: function(){this.panel.body.unmask();}
+			}
+		}));
+		cfg.loader.panel=this;
+		Ext.columnTreePanel.superclass.constructor.call(this,cfg);
+	}
+});
+//smart
+Ext.Ajax.on({
+	"beforerequest": {
+		fn: function(){
+			Ext.Msg.status("Loading...",500);
+		}
+	},
+	"requestcomplete": {
+		fn: function(conn,response,cfg){
+			//alert(response.responseText);
+			Ext.Msg.status("Complete.",500);
+		}
+	}
+});
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
 /*
  * Ext JS Library 2.2
  * Copyright(c) 2006-2008, Ext JS, LLC.
@@ -94,9 +390,9 @@ Ext.extend(Ext.menu.RangeMenu, Ext.menu.Menu, {
 	fieldCfg:     '',
 	updateBuffer: 500,
 	icons: {
-		gt: Ext.BLANK_IMAGE_URL.replace('s.gif','filter/greater_then.png'),
-		lt: Ext.BLANK_IMAGE_URL.replace('s.gif','filter/less_then.png'),
-		eq: Ext.BLANK_IMAGE_URL.replace('s.gif','filter/equals.png')
+		gt: Ext.IMAGE_URL('filter/greater_then.png'),
+		lt: Ext.IMAGE_URL('filter/less_then.png'),
+		eq: Ext.IMAGE_URL('filter/equals.png')
   },
 		
 	fireUpdate: function() {
@@ -659,7 +955,7 @@ Ext.extend(Ext.grid.filter.Filter, Ext.util.Observable, {
 
 Ext.grid.filter.StringFilter = Ext.extend(Ext.grid.filter.Filter, {
 	updateBuffer: 500,
-	icon: Ext.BLANK_IMAGE_URL.replace('s.gif','filter/find.png'),
+	icon: Ext.IMAGE_URL('filter/find.png'),
 	
 	init: function() {
 		var value = this.value = new Ext.menu.EditableItem({icon: this.icon});
@@ -1132,293 +1428,5 @@ Ext.grid.filter.BooleanFilter = Ext.extend(Ext.grid.filter.Filter, {
 	},
 	validateRecord: function(record) {
 		return record.get(this.dataIndex) == this.getValue();
-	}
-});
-//version: js@liuchuanren.com.cn, 08/09/08
-//function
-Ext.merge=function(a,b){//merge hash just subhash or undefined attribute.
-	if(!a)return a=b;
-	var i;
-	for(i in b){
-		switch(typeof a[i]){
-			case "function":
-				break;
-			case "object":
-				a[i]=Ext.merge(a[i],b[i]);
-				break;
-			case "undefined":
-				a[i]=b[i];
-				break;
-		}
-	}
-	for(i=2;i<arguments.length;i++)a=Ext.merge(a,arguments[i]);
-	return a;
-};
-Ext.MessageBox.status=function(msg,time){
-	//this empty function do nothing is used following in this script.
-	//rewrite to show msg in the period of time
-}
-//prototype
-Ext.override(Ext.Component,{
-	mask: function(msg){
-		this.getEl().mask(msg);
-	},
-	reset: function(){
-		this.findParentBy(function(o){return typeof o.reset=="function";}).reset();
-	},
-	submit: function(cfg){
-		this.findParentBy(function(o){return typeof o.submit=="function";}).submit(cfg);
-	},
-	unmask: function(){
-		this.getEl().unmask();
-	}
-});
-Ext.override(Ext.FormPanel,{
-	getValues: function(asString){return this.form.getValues(asString);},
-	isValid: function(){return this.form.isValid();},
-	reset: function(){this.form.reset();},
-	submit: function(cfg){this.form.submit(cfg);}
-});
-Ext.override(Ext.tree.TreeNode,{
-/*	eachDescendant: function(f,scope){
-		var i;
-		for(i=0;i<this.childNodes.length;i++){
-			if(f.call(scope,this.childNodes[i])){
-				this.childNodes[i].eachDescendant(f,scope);
-			}else{
-				break;
-			}
-		}
-	},
-*/	findDescendantBy: function(f,scope){
-		var node;
-		this.eachChild(function(n){
-			if(f.call(this,n)){
-				node=n;
-				return false;
-			}else if(n.childNodes){
-				if(n=n.findDescendantBy(f,scope)){
-					node=n;
-					return false;
-				}else{
-					return true;
-				}
-			}
-		},scope);
-		return node;
-	}
-});
-//new method
-Ext.apply(Ext.form.Field.msgFx,{//so I can use msgFx: "highlight" in initialConfig of Field.
-	highlight: {
-		show: function(A,B){A.highlight();},
-		hide: function(A,B){A.stopFx();A.setDisplayed(false).update("");}
-	},
-	frame: {
-		show: function(A,B){A.frame();},
-		hide: function(A,B){A.stopFx();A.setDisplayed(false).update("");}
-	}
-});
-//new object
-Ext.smartButtonConfig=function(cfg){return Ext.merge(cfg||{},{
-	style: "cssFloat: left; styleFloat: left; margin: 5px;",
-	handler: function(b){
-		if(b.url){
-			Ext.Ajax.request({
-				url: b.url,
-				success: function(r){
-					Ext.Msg.status(b.text+": "+r.responseText,1000);
-				},
-				failure: function(r){
-					Ext.Msg.alert("Alert",b.text+": "+r.responseText);
-				}
-			});
-		}
-	}
-});};
-Ext.smartButton=Ext.extend(Ext.Button,{
-	constructor: function(cfg){
-		Ext.smartButton.superclass.constructor.call(this,Ext.smartButtonConfig(cfg));
-	}
-});
-Ext.smartFormPanelConfig=function(cfg){return Ext.merge(cfg||{},{
-	xtype: "form",
-	frame: true,
-	buttonAlign: "left",
-	defaults: {
-		xtype: "textfield",
-		width: 300,
-		maxLength: 100,
-		msgTarget: "under",
-		msgFx: "highlight",
-		validationEvent: "blur"
-	},
-	buttons: [{text: 'Submit',handler: function(){this.submit();}}],
-	listeners: {
-		actioncomplete: function(form,action){
-			Ext.Msg.status("Form action complete: "+action.type+"("+(action.result&&action.result.success?"Success":"*")+")",1000);
-			if(action.type!="load"&&form.autoLoadData)form.panel.load();
-		},
-		actionfailed: function(form,action){
-			Ext.Msg.status("Form action failed: "+action.type+"("+action.failureType+")",3000);
-		}
-	},
-	reader: new Ext.data.JsonReader()
-});};
-Ext.smartFormPanel=Ext.extend(Ext.FormPanel,{
-	constructor: function(cfg){
-		cfg=Ext.merge(Ext.smartFormPanelConfig(cfg),{panel:this});
-		Ext.smartFormPanel.superclass.constructor.call(this,cfg);
-		if(cfg.autoLoadData)this.load();
-	},
-	load: function(cfg){
-		cfg=Ext.merge(cfg||{},{params: {action: "load"},waitMsg: "Loading Form's Data..."});
-		if(!this.url&&!cfg.url)return;
-		Ext.smartFormPanel.superclass.load.call(this,cfg);
-	},
-	submit: function(cfg){
-		cfg=Ext.merge(cfg||{},{params: {action: "submit"},waitMsg: "Submiting Form's Data..."});
-		if(!this.url&&!cfg.url)return;
-		Ext.smartFormPanel.superclass.submit.call(this,cfg);
-	}
-});
-Ext.smartTreePanelConfig=function(cfg){return Ext.merge(cfg||{},{
-	autoScroll: true,
-	listeners: {
-		click: function(n){
-			//href
-			if(!n.attributes.href)return;
-			//target
-			n.attributes.target||(n.attributes.target=this.initialConfig.target||Ext.getBody());
-			n.attributes.target=n.attributes.target.body||Ext.get(n.attributes.target);
-			//mask
-			n.attributes.mask||(n.attributes.mask=n.attributes.target.parent());
-			n.attributes.mask=n.attributes.mask.body||Ext.get(n.attributes.mask);
-			if(n.attributes.mask.isMasked())return;
-			//do the load
-			Ext.EventObject.stopEvent();
-			this.body.mask();
-			n.attributes.mask.mask("Loading...");
-			n.attributes.target.load({
-				url: n.attributes.href,
-				scripts: true,
-				callback:function(e,success,response,op){
-					n.attributes.mask.unmask();
-					if(!success){
-						Ext.Msg.status("Error occured when you click \""+n.attributes.text+"\": "+response.responseText,3000);
-					}
-					this.body.unmask.defer(500,this.body);
-				},
-				scope: this
-			});
-		},
-		contextmenu: Ext.emptyFn
-	},
-	loader: new Ext.tree.TreeLoader()
-});};
-Ext.smartTreePanel=Ext.extend(Ext.tree.TreePanel,{
-	constructor: function(cfg){
-		cfg=Ext.smartTreePanelConfig(cfg);
-		cfg.root||(cfg.root=new Ext.tree.AsyncTreeNode(cfg.rootConfig));
-		Ext.smartTreePanel.superclass.constructor.call(this,cfg);
-	}
-});
-Ext.tree.ColumnTree = Ext.extend(Ext.tree.TreePanel, {
-    lines:false,
-    borderWidth: Ext.isBorderBox ? 0 : 2,
-    cls:'x-column-tree',    
-    onRender : function(){
-        Ext.tree.ColumnTree.superclass.onRender.apply(this, arguments);
-        this.headers = this.body.createChild({cls:'x-tree-headers'},this.innerCt.dom);
-        var cols = this.columns, c;
-        var totalWidth = 0;
-        for(var i = 0, len = cols.length; i < len; i++){
-             c = cols[i];
-             totalWidth += c.width;
-             this.headers.createChild({
-                 cls:'x-tree-hd ' + (c.cls?c.cls+'-hd':''),
-                 cn: {
-                     cls:'x-tree-hd-text',
-                     html: c.header
-                 },
-                 style:'width:'+(c.width-this.borderWidth)+'px;'
-             });
-        }
-        this.headers.createChild({cls:'x-clear'});
-        this.headers.setWidth(totalWidth);
-        this.innerCt.setWidth(totalWidth);
-    }
-});
-Ext.tree.ColumnNodeUI = Ext.extend(Ext.tree.TreeNodeUI, {
-    focus: Ext.emptyFn,
-    renderElements : function(n, a, targetNode, bulkRender){
-        this.indentMarkup = n.parentNode ? n.parentNode.ui.getChildIndent() : '';
-        var t = n.getOwnerTree();
-        var cols = t.columns;
-        var bw = t.borderWidth;
-        var c = cols[0];
-        var buf = [
-             '<li class="x-tree-node"><div ext:tree-node-id="',n.id,'" class="x-tree-node-el x-tree-node-leaf ', a.cls,'">',
-                '<div class="x-tree-col" style="width:',c.width-bw,'px;">',
-                    '<span class="x-tree-node-indent">',this.indentMarkup,"</span>",
-                    '<img src="', this.emptyIcon, '" class="x-tree-ec-icon x-tree-elbow">',
-                    '<img src="', a.icon || this.emptyIcon, '" class="x-tree-node-icon',(a.icon ? " x-tree-node-inline-icon" : ""),(a.iconCls ? " "+a.iconCls : ""),'" unselectable="on">',
-                    '<a hidefocus="on" class="x-tree-node-anchor" href="',a.href ? a.href : "#",'" tabIndex="1" ',
-                    a.hrefTarget ? ' target="'+a.hrefTarget+'"' : "", '>',
-                    '<span unselectable="on">', n.text || (c.renderer ? c.renderer(a[c.dataIndex], n, a) : a[c.dataIndex]),"</span></a>",
-                "</div>"];
-        for(var i = 1, len = cols.length; i < len; i++){
-             c = cols[i];
-             buf.push('<div class="x-tree-col ',(c.cls?c.cls:''),'" style="width:',c.width-bw,'px;">',
-                        '<div class="x-tree-col-text">',(c.renderer ? c.renderer(a[c.dataIndex], n, a) : a[c.dataIndex]),"</div>",
-                      "</div>");
-        }
-        buf.push('<div class="x-clear"></div></div>','<ul class="x-tree-node-ct" style="display:none;"></ul>',"</li>");
-        if(bulkRender !== true && n.nextSibling && n.nextSibling.ui.getEl()){
-            this.wrap = Ext.DomHelper.insertHtml("beforeBegin", n.nextSibling.ui.getEl(), buf.join(""));
-        }else{
-            this.wrap = Ext.DomHelper.insertHtml("beforeEnd", targetNode, buf.join(""));
-        }
-        this.elNode = this.wrap.childNodes[0];
-        this.ctNode = this.wrap.childNodes[1];
-        var cs = this.elNode.firstChild.childNodes;
-        this.indentNode = cs[0];
-        this.ecNode = cs[1];
-        this.iconNode = cs[2];
-        this.anchor = cs[3];
-        this.textNode = cs[3].firstChild;
-    }
-});
-Ext.columnTreePanelConfig=function(cfg){return Ext.merge(cfg||{},{
-	rootVisible:false,
-	root: new Ext.tree.AsyncTreeNode()
-});};
-Ext.columnTreePanel=Ext.extend(Ext.tree.ColumnTree,{
-	constructor: function(cfg){
-		cfg=Ext.columnTreePanelConfig(cfg);
-		cfg.loader||(cfg.loader=new Ext.tree.TreeLoader({
-			url:cfg.url,
-			baseAttrs: {uiProvider: Ext.tree.ColumnNodeUI},
-			listeners: {
-				beforeload: function(){this.panel.body.mask("Loading...");},
-				load: function(){this.panel.body.unmask();}
-			}
-		}));
-		cfg.loader.panel=this;
-		Ext.columnTreePanel.superclass.constructor.call(this,cfg);
-	}
-});
-//smart
-Ext.Ajax.on({
-	"beforerequest": {
-		fn: function(){
-			Ext.Msg.status("Loading...",500);
-		}
-	},
-	"requestcomplete": {
-		fn: function(conn,response,cfg){
-			//alert(response.responseText);
-			Ext.Msg.status("Complete.",500);
-		}
 	}
 });
