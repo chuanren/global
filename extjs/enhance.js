@@ -155,18 +155,18 @@ Ext.smartTreePanelConfig=function(cfg){return Ext.merge(cfg||{},{
 		click: function(n){
 			//href
 			if(!n.attributes.href)return;
-			//hrefTarget
-			n.attributes.hrefTarget||(n.attributes.hrefTarget=this.initialConfig.hrefTarget||Ext.getBody());
-			n.attributes.hrefTarget=n.attributes.hrefTarget.body||Ext.get(n.attributes.hrefTarget);
+			//target
+			n.attributes.target||(n.attributes.target=this.initialConfig.target||Ext.getBody());
+			n.attributes.target=n.attributes.target.body||Ext.get(n.attributes.target);
 			//mask
-			n.attributes.mask||(n.attributes.mask=n.attributes.hrefTarget.parent());
+			n.attributes.mask||(n.attributes.mask=n.attributes.target.parent());
 			n.attributes.mask=n.attributes.mask.body||Ext.get(n.attributes.mask);
 			if(n.attributes.mask.isMasked())return;
 			//do the load
 			Ext.EventObject.stopEvent();
 			this.body.mask();
 			n.attributes.mask.mask("Loading...");
-			n.attributes.hrefTarget.load({
+			n.attributes.target.load({
 				url: n.attributes.href,
 				scripts: true,
 				callback:function(e,success,response,op){
