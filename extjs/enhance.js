@@ -7,7 +7,7 @@ Ext.cookie={
 		for(i=0;i<a.length;i++){
 			if(a[i].indexOf(nameEQ)==0)break;
 		}
-		if(i==a.length)a=value;
+		if(i==a.length)a=value||"";
 		else a=a[i];
 		return unescape(a.substr(nameEQ.length));
 	},
