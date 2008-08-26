@@ -1,5 +1,23 @@
 //version: js@liuchuanren.com.cn, 08/09/08
 //function
+Ext.cookie={
+	get: function(name,value){
+		var nameEQ=name+"=";
+		var i,a=document.cookie.split(/;\s*/);
+		for(i=0;i<a.length;i++){
+			if(a[i].indexOf(nameEQ)==0)break;
+		}
+		if(i==a.length)a=value;
+		else a=a[i];
+		return unescape(a.substr(nameEQ.length));
+	},
+	set: function(name,value,expires,path){
+		var string=name+"="+escape(value);
+		if(expires)string+="; expires="+expires;
+		path||(path="/");
+		document.cookie=string+"; path="+path;
+	}
+};
 Ext.IMAGE_URL=function(sGif){
 	return Ext.BLANK_IMAGE_URL.replace("s.gif",sGif);
 };
