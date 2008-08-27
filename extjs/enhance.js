@@ -1652,7 +1652,7 @@ Ext.grid.GroupSummary.Calculations = {
         return data[field+'count'] ? ++data[field+'count'] : (data[field+'count'] = 1);
     },
 	'commaCount': function(v, record, field, data){
-		var c=record.data[field]||"").split(",").length;
+		var c=(record.data[field]||"").split(",").length;
 		return data[field+'commaCount'] ? data[field+'commaCount'] += c: (data[field+'commaCount'] =c );
 	},
     'max' : function(v, record, field, data){
