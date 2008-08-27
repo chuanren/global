@@ -1648,23 +1648,22 @@ Ext.grid.GroupSummary.Calculations = {
     'sum' : function(v, record, field){
         return v + (record.data[field]||0);
     },
-
     'count' : function(v, record, field, data){
         return data[field+'count'] ? ++data[field+'count'] : (data[field+'count'] = 1);
     },
-
+	'commaCount': function(v, record, field, data){
+		return data[field+'commaCount'] ? data[field+'commaCount']+= record.data[field].split(",").length;
+	},
     'max' : function(v, record, field, data){
         var v = record.data[field];
         var max = data[field+'max'] === undefined ? (data[field+'max'] = v) : data[field+'max'];
         return v > max ? (data[field+'max'] = v) : max;
     },
-
     'min' : function(v, record, field, data){
         var v = record.data[field];
         var min = data[field+'min'] === undefined ? (data[field+'min'] = v) : data[field+'min'];
         return v < min ? (data[field+'min'] = v) : min;
     },
-
     'average' : function(v, record, field, data){
         var c = data[field+'count'] ? ++data[field+'count'] : (data[field+'count'] = 1);
         var t = (data[field+'total'] = ((data[field+'total']||0) + (record.data[field]||0)));
