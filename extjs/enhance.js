@@ -182,6 +182,7 @@ Ext.smartTreePanelConfig=function(cfg){return Ext.merge(cfg||{},{
 			if(n.attributes.mask.isMasked())return false;
 			//do the load
 			Ext.EventObject.stopEvent();
+			if(this.body.isMasked())return false;
 			this.body.mask();
 			n.attributes.mask.mask("Loading...");
 			n.attributes.hrefTarget.load({
