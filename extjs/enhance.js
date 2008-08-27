@@ -182,8 +182,7 @@ Ext.smartTreePanelConfig=function(cfg){return Ext.merge(cfg||{},{
 			if(n.attributes.mask.isMasked())return false;
 			//do the load
 			Ext.EventObject.stopEvent();
-			if(this.body.isMasked()){aalert(1);return false;}
-			this.body.mask();
+			this.disable();
 			n.attributes.mask.mask("Loading...");
 			n.attributes.hrefTarget.load({
 				url: n.attributes.href,
@@ -193,7 +192,7 @@ Ext.smartTreePanelConfig=function(cfg){return Ext.merge(cfg||{},{
 					if(!success){
 						Ext.Msg.status("Error occured when you click \""+n.attributes.text+"\": "+response.responseText,3000);
 					}
-					this.body.unmask.defer(500,this.body);
+					this.enable.defer(500,this);
 				},
 				scope: this
 			});
