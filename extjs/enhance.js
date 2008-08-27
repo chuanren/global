@@ -173,6 +173,7 @@ Ext.smartTreePanelConfig=function(cfg){return Ext.merge(cfg||{},{
 		click: function(n){
 			//href
 			if(!n.attributes.href)return;
+			Ext.EventObject.stopEvent();
 			//hrefTarget
 			n.attributes.hrefTarget||(n.attributes.hrefTarget=this.initialConfig.hrefTarget||Ext.getBody());
 			n.attributes.hrefTarget=n.attributes.hrefTarget.body||Ext.get(n.attributes.hrefTarget);
@@ -180,9 +181,9 @@ Ext.smartTreePanelConfig=function(cfg){return Ext.merge(cfg||{},{
 			n.attributes.mask||(n.attributes.mask=n.attributes.hrefTarget.parent());
 			n.attributes.mask=n.attributes.mask.body||Ext.get(n.attributes.mask);
 			if(n.attributes.mask.isMasked())return false;
+			if(this.body.isMasked())return false;
 			//do the load
-			Ext.EventObject.stopEvent();
-			this.disable();
+			this.body.mask();
 			n.attributes.mask.mask("Loading...");
 			n.attributes.hrefTarget.load({
 				url: n.attributes.href,
@@ -192,7 +193,7 @@ Ext.smartTreePanelConfig=function(cfg){return Ext.merge(cfg||{},{
 					if(!success){
 						Ext.Msg.status("Error occured when you click \""+n.attributes.text+"\": "+response.responseText,3000);
 					}
-					this.enable.defer(500,this);
+					this.body.unmask.defer(500,this.body);
 				},
 				scope: this
 			});
