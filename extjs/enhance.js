@@ -39,10 +39,6 @@ Ext.merge=function(a,b){//merge hash just subhash or undefined attribute.
 	for(i=2;i<arguments.length;i++)a=Ext.merge(a,arguments[i]);
 	return a;
 };
-Ext.MessageBox.status=function(msg,time){
-	//this empty function do nothing is used following in this script.
-	//rewrite to show msg in the period of time
-}
 //prototype
 Ext.override(Ext.Component,{
 	mask: function(msg){
@@ -104,111 +100,7 @@ Ext.apply(Ext.form.Field.msgFx,{//so I can use msgFx: "highlight" in initialConf
 		hide: function(A,B){A.stopFx();A.setDisplayed(false).update("");}
 	}
 });
-//new object
-Ext.smartButtonConfig=function(cfg){return Ext.merge(cfg||{},{
-	style: "cssFloat: left; styleFloat: left; margin: 5px;",
-	handler: function(b){
-		if(b.url){
-			Ext.Ajax.request({
-				url: b.url,
-				success: function(r){
-					Ext.Msg.status(b.text+": "+r.responseText,1000);
-				},
-				failure: function(r){
-					Ext.Msg.alert("Alert",b.text+": "+r.responseText);
-				}
-			});
-		}
-	}
-});};
-Ext.smartButton=Ext.extend(Ext.Button,{
-	constructor: function(cfg){
-		Ext.smartButton.superclass.constructor.call(this,Ext.smartButtonConfig(cfg));
-	}
-});
-Ext.smartFormPanelConfig=function(cfg){return Ext.merge(cfg||{},{
-	xtype: "form",
-	frame: true,
-	buttonAlign: "left",
-	defaults: {
-		xtype: "textfield",
-		width: 300,
-		maxLength: 100,
-		msgTarget: "under",
-		msgFx: "highlight",
-		validationEvent: "blur"
-	},
-	buttons: [{text: 'Submit',handler: function(){this.submit();}}],
-	listeners: {
-		actioncomplete: function(form,action){
-			Ext.Msg.status("Form action complete: "+action.type+"("+(action.result&&action.result.success?"Success":"*")+")",1000);
-			if(action.type!="load"&&form.autoLoadData)form.panel.load();
-		},
-		actionfailed: function(form,action){
-			Ext.Msg.status("Form action failed: "+action.type+"("+action.failureType+")",3000);
-		}
-	},
-	reader: new Ext.data.JsonReader()
-});};
-Ext.smartFormPanel=Ext.extend(Ext.FormPanel,{
-	constructor: function(cfg){
-		cfg=Ext.merge(Ext.smartFormPanelConfig(cfg),{panel:this});
-		Ext.smartFormPanel.superclass.constructor.call(this,cfg);
-		if(cfg.autoLoadData)this.load();
-	},
-	load: function(cfg){
-		cfg=Ext.merge(cfg||{},{params: {action: "load"},waitMsg: "Loading Form's Data..."});
-		if(!this.url&&!cfg.url)return;
-		Ext.smartFormPanel.superclass.load.call(this,cfg);
-	},
-	submit: function(cfg){
-		cfg=Ext.merge(cfg||{},{params: {action: "submit"},waitMsg: "Submiting Form's Data..."});
-		if(!this.url&&!cfg.url)return;
-		Ext.smartFormPanel.superclass.submit.call(this,cfg);
-	}
-});
-Ext.smartTreePanelConfig=function(cfg){return Ext.merge(cfg||{},{
-	autoScroll: true,
-	listeners: {
-		click: function(n){
-			//href
-			if(!n.attributes.href)return;
-			Ext.EventObject.stopEvent();
-			//hrefTarget
-			n.attributes.hrefTarget||(n.attributes.hrefTarget=this.initialConfig.hrefTarget||Ext.getBody());
-			n.attributes.hrefTarget=n.attributes.hrefTarget.body||Ext.get(n.attributes.hrefTarget);
-			//mask
-			n.attributes.mask||(n.attributes.mask=n.attributes.hrefTarget.parent());
-			n.attributes.mask=n.attributes.mask.body||Ext.get(n.attributes.mask);
-			if(n.attributes.mask.isMasked())return false;
-			if(this.body.isMasked())return false;
-			//do the load
-			this.body.mask();
-			n.attributes.mask.mask("Loading...");
-			n.attributes.hrefTarget.load({
-				url: n.attributes.href,
-				scripts: true,
-				callback:function(e,success,response,op){
-					n.attributes.mask.unmask();
-					if(!success){
-						Ext.Msg.status("Error occured when you click \""+n.attributes.text+"\": "+response.responseText,3000);
-					}
-					this.body.unmask.defer(500,this.body);
-				},
-				scope: this
-			});
-		},
-		contextmenu: Ext.emptyFn
-	},
-	loader: new Ext.tree.TreeLoader()
-});};
-Ext.smartTreePanel=Ext.extend(Ext.tree.TreePanel,{
-	constructor: function(cfg){
-		cfg=Ext.smartTreePanelConfig(cfg);
-		cfg.root||(cfg.root=new Ext.tree.AsyncTreeNode(cfg.rootConfig));
-		Ext.smartTreePanel.superclass.constructor.call(this,cfg);
-	}
-});
+/*************************************************************************************************/
 Ext.tree.ColumnTree = Ext.extend(Ext.tree.TreePanel, {
     lines:false,
     borderWidth: Ext.isBorderBox ? 0 : 2,
@@ -275,52 +167,6 @@ Ext.tree.ColumnNodeUI = Ext.extend(Ext.tree.TreeNodeUI, {
         this.textNode = cs[3].firstChild;
     }
 });
-Ext.columnTreePanelConfig=function(cfg){return Ext.merge(cfg||{},{
-	rootVisible:false,
-	root: new Ext.tree.AsyncTreeNode()
-});};
-Ext.columnTreePanel=Ext.extend(Ext.tree.ColumnTree,{
-	constructor: function(cfg){
-		cfg=Ext.columnTreePanelConfig(cfg);
-		cfg.loader||(cfg.loader=new Ext.tree.TreeLoader({
-			url:cfg.url,
-			baseAttrs: {uiProvider: Ext.tree.ColumnNodeUI},
-			listeners: {
-				beforeload: function(){this.panel.body.mask("Loading...");},
-				load: function(){this.panel.body.unmask();}
-			}
-		}));
-		cfg.loader.panel=this;
-		Ext.columnTreePanel.superclass.constructor.call(this,cfg);
-	}
-});
-//smart
-Ext.Ajax.on({
-	"beforerequest": {
-		fn: function(){
-			Ext.Msg.status("Loading...",500);
-		}
-	},
-	"requestcomplete": {
-		fn: function(conn,response,cfg){
-			//alert(response.responseText);
-			Ext.Msg.status("Complete.",500);
-		}
-	}
-});
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*
- * Ext JS Library 2.2
- * Copyright(c) 2006-2008, Ext JS, LLC.
- * licensing@extjs.com
- * 
- * http://extjs.com/license
- */
-
 Ext.menu.EditableItem = Ext.extend(Ext.menu.BaseItem, {
     itemCls : "x-menu-item",
     hideOnClick: false,
@@ -334,7 +180,6 @@ Ext.menu.EditableItem = Ext.extend(Ext.menu.BaseItem, {
 				this.editor.setValue(this.text);
       }
     },
-    
     onRender: function(container){
         var s = container.createChild({
         	cls: this.itemCls,
@@ -353,32 +198,19 @@ Ext.menu.EditableItem = Ext.extend(Ext.menu.BaseItem, {
 			
         Ext.menu.EditableItem.superclass.onRender.call(this, container);
     },
-    
     getValue: function(){
     	return this.editor.getValue();
     },
-    
     setValue: function(value){
     	this.editor.setValue(value);
     },
-    
     isValid: function(preventMark){
     	return this.editor.isValid(preventMark);
     }
 });
-/*
- * Ext JS Library 2.2
- * Copyright(c) 2006-2008, Ext JS, LLC.
- * licensing@extjs.com
- * 
- * http://extjs.com/license
- */
-
 Ext.menu.RangeMenu = function(config){
 	Ext.menu.RangeMenu.superclass.constructor.call(this, config);
-  
 	this.updateTask = new Ext.util.DelayedTask(this.fireUpdate, this);
-
 	var cfg = this.fieldCfg;
 	var cls = this.fieldCls;
 	var fields = this.fields = Ext.applyIf(this.fields || {}, {
@@ -396,14 +228,11 @@ Ext.menu.RangeMenu = function(config){
     })
 	});
 	this.add(fields.gt, fields.lt, '-', fields.eq);
-	
 	for(var key in fields) {
 		fields[key].on('keyup', this.onKeyUp.createDelegate(this, [fields[key]], true), this);
-  }
-  
+	}
 	this.addEvents('update');
 };
-
 Ext.extend(Ext.menu.RangeMenu, Ext.menu.Menu, {
 	fieldCls:     Ext.form.NumberField,
 	fieldCfg:     '',
@@ -412,55 +241,40 @@ Ext.extend(Ext.menu.RangeMenu, Ext.menu.Menu, {
 		gt: Ext.IMAGE_URL('filter/greater_then.png'),
 		lt: Ext.IMAGE_URL('filter/less_then.png'),
 		eq: Ext.IMAGE_URL('filter/equals.png')
-  },
-		
+	},
 	fireUpdate: function() {
 		this.fireEvent("update", this);
 	},
-	
 	setValue: function(data) {
 		for(var key in this.fields) {
 			this.fields[key].setValue(data[key] !== undefined ? data[key] : '');
     }
 		this.fireEvent("update", this);
 	},
-	
 	getValue: function() {
 		var result = {};
 		for(var key in this.fields) {
 			var field = this.fields[key];
 			if(field.isValid() && String(field.getValue()).length > 0) { 
 				result[key] = field.getValue();
-      }
+			}
 		}
-		
 		return result;
 	},
-  
-  onKeyUp: function(event, input, notSure, field) {
-    if(event.getKey() == event.ENTER && field.isValid()) {
-	    this.hide(true);
-	    return;
-	  }
-	
-	  if(field == this.fields.eq) {
-	    this.fields.gt.setValue(null);
-	    this.fields.lt.setValue(null);
-	  } else {
-	    this.fields.eq.setValue(null);
-	  }
-	  
-	  this.updateTask.delay(this.updateBuffer);
-  }
+	onKeyUp: function(event, input, notSure, field) {
+		if(event.getKey() == event.ENTER && field.isValid()) {
+			this.hide(true);
+			return;
+		}
+		if(field == this.fields.eq) {
+			this.fields.gt.setValue(null);
+			this.fields.lt.setValue(null);
+		} else {
+			this.fields.eq.setValue(null);
+		}
+		this.updateTask.delay(this.updateBuffer);
+	}
 });
-/*
- * Ext JS Library 2.2
- * Copyright(c) 2006-2008, Ext JS, LLC.
- * licensing@extjs.com
- * 
- * http://extjs.com/license
- */
-
 Ext.grid.GridFilters = function(config){		
 	this.filters = new Ext.util.MixedCollection();
 	this.filters.getKey = function(o) {return o ? o.dataIndex : null};
@@ -517,7 +331,6 @@ Ext.extend(Ext.grid.GridFilters, Ext.util.Observable, {
      * The text displayed for the "Filters" menu item
      */
     filtersText: 'Filters',
-
 	init: function(grid){
     if(grid instanceof Ext.grid.GridPanel){
       this.grid  = grid;
@@ -749,7 +562,6 @@ Ext.extend(Ext.grid.GridFilters, Ext.util.Observable, {
 	getFilter: function(dataIndex){
 		return this.filters.get(dataIndex);
 	},
-
 	/**
 	 * Turns all filters off. This does not clear the configuration information.
 	 */
@@ -758,7 +570,6 @@ Ext.extend(Ext.grid.GridFilters, Ext.util.Observable, {
 			filter.setActive(false);
 		});
 	},
-
 	/** private **/
 	getFilterData: function() {
 		var filters = [];
@@ -835,7 +646,6 @@ Ext.extend(Ext.grid.GridFilters, Ext.util.Observable, {
  * 
  * http://extjs.com/license
  */
-
 Ext.ns("Ext.grid.filter");
 Ext.grid.filter.Filter = function(config){
 	Ext.apply(this, config);
@@ -971,7 +781,6 @@ Ext.extend(Ext.grid.filter.Filter, Ext.util.Observable, {
  * 
  * http://extjs.com/license
  */
-
 Ext.grid.filter.StringFilter = Ext.extend(Ext.grid.filter.Filter, {
 	updateBuffer: 500,
 	icon: Ext.IMAGE_URL('filter/find.png'),
@@ -1033,7 +842,6 @@ Ext.grid.filter.StringFilter = Ext.extend(Ext.grid.filter.Filter, {
  * 
  * http://extjs.com/license
  */
-
 Ext.grid.filter.DateFilter = Ext.extend(Ext.grid.filter.Filter, {
     /**
      * @cfg {Date} dateFormat
@@ -1158,7 +966,6 @@ Ext.grid.filter.DateFilter = Ext.extend(Ext.grid.filter.Filter, {
 		if(this.dates.on.checked) {
 			args = {type: 'date', comparison: 'eq', value: this.getFieldValue('on').format(this.dateFormat)};
     }
-
     this.fireEvent('serialize', args, this);
 		return args;
 	},
@@ -1185,7 +992,6 @@ Ext.grid.filter.DateFilter = Ext.extend(Ext.grid.filter.Filter, {
  * 
  * http://extjs.com/license
  */
-
 Ext.grid.filter.ListFilter = Ext.extend(Ext.grid.filter.Filter, {
 	labelField:  'text',
 	loadingText: 'Loading...',
@@ -1305,7 +1111,6 @@ Ext.grid.filter.ListFilter = Ext.extend(Ext.grid.filter.Filter, {
 	
 	setValue: function(value) {
 		var value = this.value = [].concat(value);
-
 		if(this.loaded) {
 			this.menu.items.each(function(item) {
 				item.setChecked(false, true);
@@ -1456,26 +1261,21 @@ Ext.grid.filter.BooleanFilter = Ext.extend(Ext.grid.filter.Filter, {
  * 
  * http://extjs.com/license
  */
-
 Ext.grid.GroupSummary = function(config){
     Ext.apply(this, config);
 };
-
 Ext.extend(Ext.grid.GroupSummary, Ext.util.Observable, {
     init : function(grid){
         this.grid = grid;
         this.cm = grid.getColumnModel();
         this.view = grid.getView();
-
         var v = this.view;
         v.doGroupEnd = this.doGroupEnd.createDelegate(this);
-
         v.afterMethod('onColumnWidthUpdated', this.doWidth, this);
         v.afterMethod('onAllColumnWidthsUpdated', this.doAllWidths, this);
         v.afterMethod('onColumnHiddenUpdated', this.doHidden, this);
         v.afterMethod('onUpdate', this.doUpdate, this);
         v.afterMethod('onRemove', this.doRemove, this);
-
         if(!this.rowTpl){
             this.rowTpl = new Ext.Template(
                 '<div class="x-grid3-summary-row" style="{tstyle}">',
@@ -1486,7 +1286,6 @@ Ext.extend(Ext.grid.GroupSummary, Ext.util.Observable, {
             this.rowTpl.disableFormats = true;
         }
         this.rowTpl.compile();
-
         if(!this.cellTpl){
             this.cellTpl = new Ext.Template(
                 '<td class="x-grid3-col x-grid3-cell x-grid3-td-{id} {css}" style="{style}">',
@@ -1497,7 +1296,6 @@ Ext.extend(Ext.grid.GroupSummary, Ext.util.Observable, {
         }
         this.cellTpl.compile();
     },
-
     toggleSummaries : function(visible){
         var el = this.grid.getGridEl();
         if(el){
@@ -1507,11 +1305,9 @@ Ext.extend(Ext.grid.GroupSummary, Ext.util.Observable, {
             el[visible ? 'removeClass' : 'addClass']('x-grid-hide-summary');
         }
     },
-
     renderSummary : function(o, cs){
         cs = cs || this.view.getColumnData();
         var cfg = this.cm.config;
-
         var buf = [], c, p = {}, cf, last = cs.length-1;
         for(var i = 0, len = cs.length; i < len; i++){
             c = cs[i];
@@ -1527,13 +1323,11 @@ Ext.extend(Ext.grid.GroupSummary, Ext.util.Observable, {
             if(p.value == undefined || p.value === "") p.value = "&#160;";
             buf[buf.length] = this.cellTpl.apply(p);
         }
-
         return this.rowTpl.apply({
             tstyle: 'width:'+this.view.getTotalWidth()+';',
             cells: buf.join('')
         });
     },
-
     calculate : function(rs, cs){
         var data = {}, r, c, cfg = this.cm.config, cf;
         for(var j = 0, jlen = rs.length; j < jlen; j++){
@@ -1548,12 +1342,10 @@ Ext.extend(Ext.grid.GroupSummary, Ext.util.Observable, {
         }
         return data;
     },
-
     doGroupEnd : function(buf, g, cs, ds, colCount){
         var data = this.calculate(g.rs, cs);
         buf.push('</div>', this.renderSummary({data: data}, cs), '</div>');
     },
-
     doWidth : function(col, w, tw){
         var gs = this.view.getGroups(), s;
         for(var i = 0, len = gs.length; i < len; i++){
@@ -1563,7 +1355,6 @@ Ext.extend(Ext.grid.GroupSummary, Ext.util.Observable, {
             s.firstChild.rows[0].childNodes[col].style.width = w;
         }
     },
-
     doAllWidths : function(ws, tw){
         var gs = this.view.getGroups(), s, cells, wlen = ws.length;
         for(var i = 0, len = gs.length; i < len; i++){
@@ -1576,7 +1367,6 @@ Ext.extend(Ext.grid.GroupSummary, Ext.util.Observable, {
             }
         }
     },
-
     doHidden : function(col, hidden, tw){
         var gs = this.view.getGroups(), s, display = hidden ? 'none' : '';
         for(var i = 0, len = gs.length; i < len; i++){
@@ -1586,14 +1376,12 @@ Ext.extend(Ext.grid.GroupSummary, Ext.util.Observable, {
             s.firstChild.rows[0].childNodes[col].style.display = display;
         }
     },
-
     // Note: requires that all (or the first) record in the 
     // group share the same group value. Returns false if the group
     // could not be found.
     refreshSummary : function(groupValue){
         return this.refreshSummaryById(this.view.getGroupId(groupValue));
     },
-
     getSummaryNode : function(gid){
         var g = Ext.fly(gid, '_gsummary');
         if(g){
@@ -1601,7 +1389,6 @@ Ext.extend(Ext.grid.GroupSummary, Ext.util.Observable, {
         }
         return null;
     },
-
     refreshSummaryById : function(gid){
         var g = document.getElementById(gid);
         if(!g){
@@ -1616,7 +1403,6 @@ Ext.extend(Ext.grid.GroupSummary, Ext.util.Observable, {
         var cs = this.view.getColumnData();
         var data = this.calculate(rs, cs);
         var markup = this.renderSummary({data: data}, cs);
-
         var existing = this.getSummaryNode(gid);
         if(existing){
             g.removeChild(existing);
@@ -1624,17 +1410,14 @@ Ext.extend(Ext.grid.GroupSummary, Ext.util.Observable, {
         Ext.DomHelper.append(g, markup);
         return true;
     },
-
     doUpdate : function(ds, record){
         this.refreshSummaryById(record._groupId);
     },
-
     doRemove : function(ds, record, index, isUpdate){
         if(!isUpdate){
             this.refreshSummaryById(record._groupId);
         }
     },
-
     showSummaryMsg : function(groupValue, msg){
         var gid = this.view.getGroupId(groupValue);
         var node = this.getSummaryNode(gid);
@@ -1643,7 +1426,6 @@ Ext.extend(Ext.grid.GroupSummary, Ext.util.Observable, {
         }
     }
 });
-
 Ext.grid.GroupSummary.Calculations = {
     'sum' : function(v, record, field){
         return v + (record.data[field]||0);
@@ -1671,7 +1453,6 @@ Ext.grid.GroupSummary.Calculations = {
         return t === 0 ? 0 : t / c;
     }
 }
-
 Ext.grid.HybridSummary = Ext.extend(Ext.grid.GroupSummary, {
     calculate : function(rs, cs){
         var gcol = this.view.getGroupField();
@@ -1679,7 +1460,6 @@ Ext.grid.HybridSummary = Ext.extend(Ext.grid.GroupSummary, {
         var gdata = this.getSummaryData(gvalue);
         return gdata || Ext.grid.HybridSummary.superclass.calculate.call(this, rs, cs);
     },
-
     updateSummaryData : function(groupValue, data, skipRefresh){
         var json = this.grid.store.reader.jsonData;
         if(!json.summaryData){
@@ -1690,7 +1470,6 @@ Ext.grid.HybridSummary = Ext.extend(Ext.grid.GroupSummary, {
             this.refreshSummary(groupValue);
         }
     },
-
     getSummaryData : function(groupValue){
         var json = this.grid.store.reader.jsonData;
         if(json && json.summaryData){

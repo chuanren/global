@@ -48,6 +48,144 @@ How to Use? the example is following, notice modify the url:
 	</body>
 </html>
 */
+Ext.smartButtonConfig=function(cfg){return Ext.merge(cfg||{},{
+	style: "cssFloat: left; styleFloat: left; margin: 5px;",
+	handler: function(b){
+		if(b.url){
+			Ext.Ajax.request({
+				url: b.url,
+				success: function(r){
+					Ext.Msg.status(b.text+": "+r.responseText,1000);
+				},
+				failure: function(r){
+					Ext.Msg.alert("Alert",b.text+": "+r.responseText);
+				}
+			});
+		}
+	}
+});};
+Ext.smartButton=Ext.extend(Ext.Button,{
+	constructor: function(cfg){
+		Ext.smartButton.superclass.constructor.call(this,Ext.smartButtonConfig(cfg));
+	}
+});
+Ext.smartFormPanelConfig=function(cfg){return Ext.merge(cfg||{},{
+	xtype: "form",
+	frame: true,
+	buttonAlign: "left",
+	defaults: {
+		xtype: "textfield",
+		width: 300,
+		maxLength: 100,
+		msgTarget: "under",
+		msgFx: "highlight",
+		validationEvent: "blur"
+	},
+	buttons: [{text: 'Submit',handler: function(){this.submit();}}],
+	listeners: {
+		actioncomplete: function(form,action){
+			Ext.Msg.status("Form action complete: "+action.type+"("+(action.result&&action.result.success?"Success":"*")+")",1000);
+			if(action.type!="load"&&form.autoLoadData)form.panel.load();
+		},
+		actionfailed: function(form,action){
+			Ext.Msg.status("Form action failed: "+action.type+"("+action.failureType+")",3000);
+		}
+	},
+	reader: new Ext.data.JsonReader()
+});};
+Ext.smartFormPanel=Ext.extend(Ext.FormPanel,{
+	constructor: function(cfg){
+		cfg=Ext.merge(Ext.smartFormPanelConfig(cfg),{panel:this});
+		Ext.smartFormPanel.superclass.constructor.call(this,cfg);
+		if(cfg.autoLoadData)this.load();
+	},
+	load: function(cfg){
+		cfg=Ext.merge(cfg||{},{params: {action: "load"},waitMsg: "Loading Form's Data..."});
+		if(!this.url&&!cfg.url)return;
+		Ext.smartFormPanel.superclass.load.call(this,cfg);
+	},
+	submit: function(cfg){
+		cfg=Ext.merge(cfg||{},{params: {action: "submit"},waitMsg: "Submiting Form's Data..."});
+		if(!this.url&&!cfg.url)return;
+		Ext.smartFormPanel.superclass.submit.call(this,cfg);
+	}
+});
+Ext.smartTreePanelConfig=function(cfg){return Ext.merge(cfg||{},{
+	autoScroll: true,
+	listeners: {
+		click: function(n){
+			//href
+			if(!n.attributes.href)return;
+			Ext.EventObject.stopEvent();
+			//hrefTarget
+			n.attributes.hrefTarget||(n.attributes.hrefTarget=this.initialConfig.hrefTarget||Ext.getBody());
+			n.attributes.hrefTarget=n.attributes.hrefTarget.body||Ext.get(n.attributes.hrefTarget);
+			//mask
+			n.attributes.mask||(n.attributes.mask=n.attributes.hrefTarget.parent());
+			n.attributes.mask=n.attributes.mask.body||Ext.get(n.attributes.mask);
+			if(n.attributes.mask.isMasked())return false;
+			if(this.body.isMasked())return false;
+			//do the load
+			this.body.mask();
+			n.attributes.mask.mask("Loading...");
+			n.attributes.hrefTarget.load({
+				url: n.attributes.href,
+				scripts: true,
+				callback:function(e,success,response,op){
+					n.attributes.mask.unmask();
+					if(!success){
+						Ext.Msg.status("Error occured when you click \""+n.attributes.text+"\": "+response.responseText,3000);
+					}
+					this.body.unmask.defer(500,this.body);
+				},
+				scope: this
+			});
+		},
+		contextmenu: Ext.emptyFn
+	},
+	loader: new Ext.tree.TreeLoader()
+});};
+Ext.smartTreePanel=Ext.extend(Ext.tree.TreePanel,{
+	constructor: function(cfg){
+		cfg=Ext.smartTreePanelConfig(cfg);
+		cfg.root||(cfg.root=new Ext.tree.AsyncTreeNode(cfg.rootConfig));
+		Ext.smartTreePanel.superclass.constructor.call(this,cfg);
+	}
+});
+Ext.columnTreePanelConfig=function(cfg){return Ext.merge(cfg||{},{
+	rootVisible:false,
+	root: new Ext.tree.AsyncTreeNode()
+});};
+Ext.columnTreePanel=Ext.extend(Ext.tree.ColumnTree,{
+	constructor: function(cfg){
+		cfg=Ext.columnTreePanelConfig(cfg);
+		cfg.loader||(cfg.loader=new Ext.tree.TreeLoader({
+			url:cfg.url,
+			baseAttrs: {uiProvider: Ext.tree.ColumnNodeUI},
+			listeners: {
+				beforeload: function(){this.panel.body.mask("Loading...");},
+				load: function(){this.panel.body.unmask();}
+			}
+		}));
+		cfg.loader.panel=this;
+		Ext.columnTreePanel.superclass.constructor.call(this,cfg);
+	}
+});
+//smart
+Ext.Ajax.on({
+	"beforerequest": {
+		fn: function(){
+			Ext.Msg.status("Loading...",500);
+		}
+	},
+	"requestcomplete": {
+		fn: function(conn,response,cfg){
+			//alert(response.responseText);
+			Ext.Msg.status("Complete.",500);
+		}
+	}
+});
+/***************************************************************************************/
 Ext.smartWindow={
 	navi: [{text:'Tree1',leaf:true,href: "Tree1.htm"},{text:'Tree2',children:[{text:'Tree21',leaf:true}],detail: "You will request a url, the response will be showed. enjoy."}],
 	top: "top",
