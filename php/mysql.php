@@ -50,6 +50,9 @@ class mysql extends sql{
 	function free($result){
 		return mysql_free_result($result);
 	}
+	function insertId(){
+		return mysql_insert_id($this->id);
+	}
 	function numRows($result){
 		return @mysql_num_rows($result);
 	}
@@ -75,9 +78,6 @@ class mysql extends sql{
 		return $columns;
 	}
 	//end of rewriting methods
-	function insertId(){
-		return mysql_insert_id($this->id);
-	}
 }
 /*
 	//ui methods

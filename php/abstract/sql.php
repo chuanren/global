@@ -39,6 +39,7 @@ abstract class sql{
 	abstract function fetchAllColumnNames($table);
 	
 	abstract function free($result);
+	abstract function insertId();
 	abstract function numRows($result);
 	abstract function numFields($result);
 	abstract function setCharset($charset);
