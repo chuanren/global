@@ -36,6 +36,7 @@ class framework{
 	public $value=array();
 	public $action="default";
 	public $stdout=array();
+	public $stderr=array();
 	public function framework($id,$path="framework"){
 		global $_FRAMEWORK;
 		$this->id=$id;
@@ -67,7 +68,7 @@ class framework{
 		return true;
 	}
 	private function Render(){
-		require("{$this->path}/view/{$this->action}.php");
+		@include("{$this->path}/view/{$this->action}.php");
 		return true;
 	}
 	private function Output(){
