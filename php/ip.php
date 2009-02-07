@@ -1,5 +1,4 @@
 <?php
-//version: Liu ChuanRen, 05/10/08
 class ip{
 	var $array=array(0,0,0,0);
 	var $number=0;

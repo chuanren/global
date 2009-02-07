@@ -1,30 +1,20 @@
 <?php
-//version: php@liuchuanren.com.cn, 07/04/08
-/*
-ZF's MVC solution: every controller is a predefined class by ZF. 
-But I prefer to use original php scripts as controllers. In every script, $this is the model's instance who is calling the script as controller. When the script is normally ended, $this->__destruct will run.
+/**
+The next version will be like:
+framework
+	action
+		default
+			model.php
+			view.php
+			controller.php
+			
+	plugin
+		test
+			beforeEvent.php
+			Event.php
+			afterEvent.php
 
-Now we discuss the view if you noticed $model->views="/path/to/view" above. In my opinion, view is an optional part. The controller can output htmls so you can abandon the view part. Or the controller can set the object $model->view(Notice $model is $this in script). For example, the content of
-	/path/to/view/signIn.php
-is:
-	<html>
-		<head>
-			<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-			<title>signIn</title>
-		</head>
-		<body>
-			<#name#>
-			<?php print($this->var->name);?>
-			value
-		</body>
-	</html>
-the content of 
-	/path/to/controller/signIn.php
-is:
-	<?php
-		$this->var->name="value";
-	?>
-Now, I am considering to use output_add_rewrite_var function.
+
 */
 class framework{
 	public $id;
@@ -60,7 +50,7 @@ class framework{
 	}
 	private function Route(){
 		$this->value=$_REQUEST;
-		if(preg_match("([A-Za-z0-9]+)",$_SERVER['QUERY_STRING'],$action)){
+		if(preg_match("/^([A-Za-z0-9]+)/",$_SERVER['QUERY_STRING'],$action)){
 			$this->action=$action[1];
 		}
 		@include("{$this->path}/model/{$this->action}.php");
@@ -68,7 +58,9 @@ class framework{
 		return true;
 	}
 	private function Render(){
-		@include("{$this->path}/view/{$this->action}.php");
+		$view="{$this->path}/view/{$this->action}.php";
+		if(is_file($view))include("$view");
+		else include("{$this->path}/view/default.php");
 		return true;
 	}
 	private function Output(){

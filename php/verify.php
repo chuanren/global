@@ -1,5 +1,4 @@
 <?php
-//version: Liu ChuanRen, 08/26/08
 require_once("session.php");
 class verify extends session{
 	var $code="";
