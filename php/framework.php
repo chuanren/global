@@ -67,13 +67,13 @@ class framework{
 			$this->action=$framework_t[1];
 		}
 		@include("{$this->path}/action/{$this->action}/model.php");
-		include("{$this->path}/action/{$this->action}/controller.php");
+		@include("{$this->path}/action/{$this->action}/controller.php");
 		return true;
 	}
 	private function Render(){
 		$framework_path="{$this->path}/action/{$this->action}/view.php";
 		if(is_file($framework_path))include($framework_path);
-		else include("{$this->path}/action/default/view.php");
+		else @include("{$this->path}/action/default/view.php");
 		return true;
 	}
 	private function Output(){
