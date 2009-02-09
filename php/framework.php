@@ -1,6 +1,5 @@
 <?php
 /**
-The next version will be like:
 framework
 	action
 		default
@@ -18,20 +17,33 @@ framework
 */
 class framework{
 	public $id;
-	public $path;//contains subdirectories: model, view, controller, plugin.
+	public $path;
+	
+	public $actions=array();
+	public $plugins=array();
+	
 	public $base="";
 	public $askmark="?";
 	public $eqnmark="=";
 	public $andmark="&";
+	
 	public $value=array();
 	public $action="default";
+	
 	public $stdout=array();
 	public $stderr=array();
+	
 	public function framework($id,$path="framework"){
 		global $_FRAMEWORK;
 		$this->id=$id;
-		$this->path=realpath($path);
 		$_FRAMEWORK[$id]=&$this;
+		$this->path=realpath($path);
+		$plugins=@scandir("{$this->path}/plugin");
+		list($k,$v)=@each($plugins);//.
+		list($k,$v)=@each($plugins);//..
+		while(list($k,$v)=@each($plugins)){
+			$this->plugins[$v]=scandir("{$this->path}/plugin/$v");
+		}
 	}
 	public function getInstance($id){
 		global $_FRAMEWORK;
@@ -40,6 +52,7 @@ class framework{
 	public function toUrl($value){
 		$s="{$this->base}{$this->askmark}";
 		while(list($k,$v)=each($value)){
+			$v=urlencode($v);
 			$s.="$k{$this->eqnmark}$v{$this->andmark}";
 		}
 		return $s;
@@ -50,31 +63,31 @@ class framework{
 	}
 	private function Route(){
 		$this->value=$_REQUEST;
-		if(preg_match("/^([A-Za-z0-9]+)/",$_SERVER['QUERY_STRING'],$action)){
-			$this->action=$action[1];
+		if(preg_match("/^([A-Za-z0-9]+)/",$_SERVER['QUERY_STRING'],$framework_t)){
+			$this->action=$framework_t[1];
 		}
-		@include("{$this->path}/model/{$this->action}.php");
-		require("{$this->path}/controller/{$this->action}.php");
+		@include("{$this->path}/action/{$this->action}/model.php");
+		include("{$this->path}/action/{$this->action}/controller.php");
 		return true;
 	}
 	private function Render(){
-		$view="{$this->path}/view/{$this->action}.php";
-		if(is_file($view))include("$view");
-		else include("{$this->path}/view/default.php");
+		$framework_path="{$this->path}/action/{$this->action}/view.php";
+		if(is_file($framework_path))include($framework_path);
+		else include("{$this->path}/action/default/view.php");
 		return true;
 	}
 	private function Output(){
-		print implode("",$this->stdout);
+		echo implode("",$this->stdout);
 		return true;
 	}
 	//Event mechanism
-	private function BAEvent($framework_eventName,$framework_BA){
+	private function BAEvent($framework_eventName,$framework_BA=""){
 		$framework_flag=true;
-		$framework_path="{$this->path}/plugin/$framework_BA$framework_eventName";
-		$framework_plgs=@scandir($framework_path);
-		while(list($framework_k,$framework_v)=@each($framework_plgs)){
-			if(preg_match("/\.php$/",$framework_v)){
-				$framework_flag=require("$framework_path/$framework_v");
+		reset($this->plugins);
+		while(list($framework_k,$framework_v)=each($this->plugins)){
+			$framework_path="{$this->path}/plugin/$framework_k/$framework_BA$framework_eventName.php";
+			if(is_file($framework_path)){
+				$framework_flag=require($framework_path);
 				if($framework_flag)continue;
 				else break;
 			}
@@ -85,6 +98,7 @@ class framework{
 		$framework_flag=true;
 		$framework_flag=$this->BAEvent($framework_eventName,"before");
 		if($framework_flag)$framework_flag=$this->$framework_eventName();
+		if($framework_flag)$framework_flag=$this->BAEvent($framework_eventName);
 		if($framework_flag)$framework_flag=$this->BAEvent($framework_eventName,"after");
 		return $framework_flag;
 	}
