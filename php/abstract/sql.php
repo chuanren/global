@@ -16,9 +16,18 @@ abstract class sql{
 	abstract function connect($server,$username,$password);
 	abstract function escapeString($string);
 	abstract function execute($sql);//iconv
-	abstract function fetchRow($result);//iconv
 	abstract function fetchField($result);//iconv
+	abstract function fetchRow($result);//iconv
 	
+	/**
+	* function to retrieve the names of database.tables
+	* @abstract
+	* @access public
+	* @param null|string $database the name of database
+	* @return array the array will contain all the names of database.tables
+	*/
+	abstract function fetchAllTableNames($database=null);
+
 	/**
 	* function to retrieve the information of database.table.column
 	* @abstract
@@ -76,6 +85,9 @@ abstract class sql{
 	}
 	function getAllRows(){
 		return $this->fetchAllRows($this->result);
+	}
+	function getAllTableNames($database=null){
+		return $this->fetchAllTableNames($database);
 	}
 	function getColumn($table,$column){
 		return $this->fetchColumn($table,$column);

@@ -39,10 +39,9 @@ class framework{
 		$_FRAMEWORK[$id]=&$this;
 		$this->path=realpath($path);
 		$plugins=@scandir("{$this->path}/plugin");
-		list($k,$v)=@each($plugins);//.
-		list($k,$v)=@each($plugins);//..
 		while(list($k,$v)=@each($plugins)){
-			$this->plugins[$v]=scandir("{$this->path}/plugin/$v");
+			//avoid ., .., .svn, ....
+			if(substr($v,0,1)!=".")$this->plugins[$v]=scandir("{$this->path}/plugin/$v");
 		}
 	}
 	public function getInstance($id){
@@ -59,13 +58,13 @@ class framework{
 	}
 	//Events
 	private function Initialize(){
-		return true;
-	}
-	private function Route(){
-		$this->value=$_REQUEST;
 		if(preg_match("/^([A-Za-z0-9]+)/",$_SERVER['QUERY_STRING'],$framework_t)){
 			$this->action=$framework_t[1];
 		}
+		$this->value=$_REQUEST;
+		return true;
+	}
+	private function Route(){
 		@include("{$this->path}/action/{$this->action}/model.php");
 		@include("{$this->path}/action/{$this->action}/controller.php");
 		return true;
@@ -88,8 +87,9 @@ class framework{
 			$framework_path="{$this->path}/plugin/$framework_k/$framework_BA$framework_eventName.php";
 			if(is_file($framework_path)){
 				$framework_flag=require($framework_path);
-				if($framework_flag)continue;
-				else break;
+				if($framework_flag){
+					continue;
+				}else break;
 			}
 		}
 		return $framework_flag;
@@ -97,7 +97,7 @@ class framework{
 	public function fireEvent($framework_eventName){
 		$framework_flag=true;
 		$framework_flag=$this->BAEvent($framework_eventName,"before");
-		if($framework_flag)$framework_flag=$this->$framework_eventName();
+		$this->$framework_eventName();
 		if($framework_flag)$framework_flag=$this->BAEvent($framework_eventName);
 		if($framework_flag)$framework_flag=$this->BAEvent($framework_eventName,"after");
 		return $framework_flag;

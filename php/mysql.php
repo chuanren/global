@@ -17,6 +17,34 @@ class mysql extends sql{
 	function execute($sql){
 		return mysql_query($sql,$this->id);
 	}
+	function fetchField($result,$offset=null){
+		if($offset===null)$return=mysql_fetch_field($result);
+		else $return=mysql_fetch_field($result,$offset);
+		//the if statement is necessary, because (array)false=array(false) is true , not false or null.
+		//the function will return null if it fetches nothing from result.
+		if($return)$return=(array)$return;
+		return $return;
+	}
+	function fetchRow($result){
+		return mysql_fetch_assoc($result);
+	}
+	function free($result){
+		return mysql_free_result($result);
+	}
+	function fetchAllTableNames($database=null){
+		if($database){
+			$result=$this->executef("show tables in `%s`",array($database));
+		}else{
+			$result=$this->execute("show tables");
+		}
+		$field=$this->fetchField($result);
+		$name=$field['name'];
+		$names=array();
+		while($row=$this->fetchRow($result)){
+			$names[]=$row[$name];
+		}
+		return $names;
+	}
 	function fetchColumn($table,$column){
 		$o=false;
 		$result=$this->executef("show full columns from `%s` like '%s'",array($table,$column));
@@ -35,20 +63,6 @@ class mysql extends sql{
 		$result=$this->executef("show columns from `%s`",array($table));
 		while($row=$this->fetchRow($result))$names[]=$row['Field'];
 		return $names;
-	}
-	function fetchField($result,$offset=null){
-		if($offset===null)$return=mysql_fetch_field($result);
-		else $return=mysql_fetch_field($result,$offset);
-		//the if statement is necessary, because (array)false=array(false) is true , not false or null.
-		//the function will return null if it fetches nothing from result.
-		if($return)$return=(array)$return;
-		return $return;
-	}
-	function fetchRow($result){
-		return mysql_fetch_assoc($result);
-	}
-	function free($result){
-		return mysql_free_result($result);
 	}
 	function insertId(){
 		return mysql_insert_id($this->id);
