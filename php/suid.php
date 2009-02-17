@@ -59,8 +59,12 @@ class suid{
 		$string.="from `%s` where ";
 		$array[]=$this->table;
 		
+		list($k,$v)=each($filter);
+		$string.="%s %s '%s' ";
+		$array=array_merge($array,$v);
+		
 		while(list($k,$v)=each($filter)){
-			$string.="%s %s '%s' ";
+			$string.="and %s %s '%s' ";
 			$array=array_merge($array,$v);
 		}
 		

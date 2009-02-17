@@ -56,6 +56,14 @@ class framework{
 		}
 		return $s;
 	}
+	public function importScript($framework_path,&$return=null){
+		if(is_file($framework_path)){
+			$return=require($framework_path);
+			return true;
+		}else{
+			return false;
+		}
+	}
 	//Events
 	private function Initialize(){
 		if(preg_match("/^([A-Za-z0-9]+)/",$_SERVER['QUERY_STRING'],$framework_t)){
@@ -65,14 +73,14 @@ class framework{
 		return true;
 	}
 	private function Route(){
-		@include("{$this->path}/action/{$this->action}/model.php");
-		@include("{$this->path}/action/{$this->action}/controller.php");
+		$this->importScript("{$this->path}/action/{$this->action}/model.php");
+		$this->importScript("{$this->path}/action/{$this->action}/controller.php");
 		return true;
 	}
 	private function Render(){
-		$framework_path="{$this->path}/action/{$this->action}/view.php";
-		if(is_file($framework_path))include($framework_path);
-		else @include("{$this->path}/action/default/view.php");
+		if(!$this->importScript("{$this->path}/action/{$this->action}/view.php")){
+			$this->importScript("{$this->path}/action/default/view.php");
+		}
 		return true;
 	}
 	private function Output(){
