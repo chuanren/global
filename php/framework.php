@@ -56,36 +56,46 @@ class framework{
 		}
 		return $s;
 	}
-	public function importScript($framework_path,&$return=null){
-		if(is_file($framework_path)){
-			$return=require($framework_path);
-			return true;
-		}else{
-			return false;
-		}
-	}
-	//Events
-	private function Initialize(){
+	//Main
+	public function main(){
+		//Initialize
+		$framework_flag=$this->BAEvent("Initialize","before");
 		if(preg_match("/^([A-Za-z0-9]+)/",$_SERVER['QUERY_STRING'],$framework_t)){
 			$this->action=$framework_t[1];
 		}
 		$this->value=$_REQUEST;
-		return true;
-	}
-	private function Route(){
-		$this->importScript("{$this->path}/action/{$this->action}/model.php");
-		$this->importScript("{$this->path}/action/{$this->action}/controller.php");
-		return true;
-	}
-	private function Render(){
-		if(!$this->importScript("{$this->path}/action/{$this->action}/view.php")){
-			$this->importScript("{$this->path}/action/default/view.php");
+		if($framework_flag)$framework_flag=$this->BAEvent("Initialize");
+		if($framework_flag)$framework_flag=$this->BAEvent("Initialize","after");
+		//Route
+		$framework_flag=$this->BAEvent("Route","before");
+		$framework_path="{$this->path}/action/{$this->action}/model.php";
+		if(is_file($framework_path)){
+			require($framework_path);
 		}
-		return true;
-	}
-	private function Output(){
+		$framework_path="{$this->path}/action/{$this->action}/controller.php";
+		if(is_file($framework_path)){
+			require($framework_path);
+		}
+		if($framework_flag)$framework_flag=$this->BAEvent("Route");
+		if($framework_flag)$framework_flag=$this->BAEvent("Route","after");
+		//Render
+		$framework_flag=$this->BAEvent("Render","before");
+		$framework_path="{$this->path}/action/{$this->action}/view.php";
+		if(is_file($framework_path)){
+			require($framework_path);
+		}else{
+			$framework_path="{$this->path}/action/default/view.php";
+			if(is_file($framework_path)){
+				require($framework_path);
+			}
+		}
+		if($framework_flag)$framework_flag=$this->BAEvent("Render");
+		if($framework_flag)$framework_flag=$this->BAEvent("Render","after");
+		//Output
+		$framework_flag=$this->BAEvent("Output","before");
 		echo implode("",$this->stdout);
-		return true;
+		if($framework_flag)$framework_flag=$this->BAEvent("Output");
+		if($framework_flag)$framework_flag=$this->BAEvent("Output","after");
 	}
 	//Event mechanism
 	private function BAEvent($framework_eventName,$framework_BA=""){
@@ -100,14 +110,6 @@ class framework{
 				}else break;
 			}
 		}
-		return $framework_flag;
-	}
-	public function fireEvent($framework_eventName){
-		$framework_flag=true;
-		$framework_flag=$this->BAEvent($framework_eventName,"before");
-		$this->$framework_eventName();
-		if($framework_flag)$framework_flag=$this->BAEvent($framework_eventName);
-		if($framework_flag)$framework_flag=$this->BAEvent($framework_eventName,"after");
 		return $framework_flag;
 	}
 }
