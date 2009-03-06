@@ -38,15 +38,19 @@ class framework{
 		$this->id=$id;
 		$_FRAMEWORK[$id]=&$this;
 		$this->path=realpath($path);
-		$plugins=@scandir("{$this->path}/plugin");
-		while(list($k,$v)=@each($plugins)){
-			//avoid ., .., .svn, ....
-			if(substr($v,0,1)!=".")$this->plugins[$v]=scandir("{$this->path}/plugin/$v");
-		}
+		$this->setPlugins("{$this->path}/plugin");
 	}
 	public function getInstance($id){
 		global $_FRAMEWORK;
 		return $_FRAMEWORK[$id];
+	}
+	public function setPlugins($path){
+		$path=realpath($path);
+		$plugins=@scandir($path);
+		while(list($k,$v)=@each($plugins)){
+			//avoid ., .., .svn, ....
+			if(substr($v,0,1)!=".")$this->plugins["$path/$v"]=scandir("$path/$v");
+		}
 	}
 	public function toUrl($value){
 		$s="{$this->base}{$this->askmark}";
@@ -102,7 +106,7 @@ class framework{
 		$framework_flag=true;
 		reset($this->plugins);
 		while(list($framework_k,$framework_v)=each($this->plugins)){
-			$framework_path="{$this->path}/plugin/$framework_k/$framework_BA$framework_eventName.php";
+			$framework_path="$framework_k/$framework_BA$framework_eventName.php";
 			if(is_file($framework_path)){
 				$framework_flag=require($framework_path);
 				if($framework_flag){
