@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $this->charset;?>">
 <title><?php echo $this->title;?></title>
-<style>@import url("/Global/php/Window/plugin/window/window.css");</style>
+<style>@import url("/global/php/Window/plugin/window/window.css");</style>
 </head>
 <body id="windowBody">
 <div id="windowTop">

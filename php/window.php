@@ -9,7 +9,7 @@ class window extends framework{
 		$this->setPlugins(dirname(__file__)."/Window/plugin");
 	}
 	public function alert($msg){
-		
+		$this->stdout[]="<center><div class=windowAlert>$msg</div></center>";
 	}
 	public function confirm($msg){
 	}
