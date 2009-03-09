@@ -109,8 +109,13 @@ class suid{
 		$string="update `%s` set ";
 		$array=array($this->table);
 		
+		list($k,$v)=each($value);
+		$string.="`%s`='%s'";
+		$array[]=$k;
+		$array[]=$v;
+		
 		while(list($k,$v)=each($value)){
-			$string.="`%s`='%s' ";
+			$string.=",`%s`='%s' ";
 			$array[]=$k;
 			$array[]=$v;
 		}

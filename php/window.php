@@ -12,6 +12,10 @@ class window extends framework{
 		$this->stdout[]="<center><div class=windowAlert>$msg</div></center>";
 	}
 	public function confirm($msg){
+		$confirm=$_GET['windowConfirm'];
+		if($confirm)return $confirm;
+		$queryString=$_SERVER['QUERY_STRING'];
+		$this->stdout[]="<center><div class=windowAlert>$msg<hr /><a href=?{$queryString}&windowConfirm=yes>Yes</a> <a href=?{$queryString}&windowConfirm=no>No</a></div></center>";
 	}
 }
 ?>
