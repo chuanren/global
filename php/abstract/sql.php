@@ -34,7 +34,7 @@ abstract class sql{
 	* @access public
 	* @param string $table the name of database.table
 	* @param string $column the name of database.table.column
-	* @return array|bool if success the array will contain the keys: name, key; or false. the name's value is the name of database.table.column, the key's value will be "PRI"|"UNI"|"MUL"|""
+	* @return array|bool if success the array will contain the keys: name, key, type, comment; or false. the name's value is the name of database.table.column, the key's value will be "PRI"|"UNI"|"MUL"|"", the type's value will be like varchar(100), the default's value will be the default value of the column defined by the table, the comment's value will be specified by the table or the program(maybe an encoded string using JSON format)
 	*/
 	abstract function fetchColumn($table,$column);
 	
@@ -128,6 +128,57 @@ abstract class sql{
 	}
 	function selectedFields(){
 		return $this->numFields($this->result);
+	}
+	
+	/**
+	* function to return html of the <input /> relative to the column
+	* @access public
+	* @param array $column defiend in fetchColumn
+	* @param null||string $id the id of the input element
+	* @param null||string $value the value of the input element
+	* @return string html fragment: <input ... />
+	*/
+	function htmlColumnToInput($column,$id=null,$value=null){
+		if(!$id)$id=$column['name'];
+		if($value===null)$value=$column['default'];
+		if(!preg_match("/^([a-z]*)\((.*)\)$/",$column['type'],$type))preg_match("/^([a-z]*)$/",$column['type'],$type);
+		switch($type[1]){
+			case "text":
+				$html="<textarea id=\"$id\" name=\"$id\">$value</textarea>";
+				break;
+			case "enum":
+				$options=$type[2];
+				$options=str_replace("'","",$options);
+				$options=explode(",",$options);
+				$html="<select id=\"$id\" name=\"$id\">";
+				while(list($k,$v)=each($options)){
+					if($v==$value){
+						$html.="<option value=\"$v\" selected>$v</option>";
+					}else{
+						$html.="<option value=\"$v\">$v</option>";
+					}
+				}
+				$html.="</select>";
+				break;
+			case "set":
+				$options=$type[2];
+				$options=str_replace("'","",$options);
+				$options=explode(",",$options);
+				$html="<select id=\"".$id."[]\" name=\"".$id."[]\" multiple>";
+				while(list($k,$v)=each($options)){
+					if(strpos(",$value,",",".$v.",")===false){
+						$html.="<option value=\"$v\">$v</option>";
+					}else{
+						$html.="<option value=\"$v\" selected>$v</option>";
+					}
+				}
+				$html.="</select>";
+				break;
+			default:
+				$html="<input id=\"$id\" name=\"$id\" type=\"text\" maxlength=\"".$type[2]."\" value=\"$value\" />";
+				break;
+		}
+		return $html;
 	}
 }
 ?>

@@ -52,8 +52,11 @@ class mysql extends sql{
 		$row=$this->fetchRow($result);
 		if($row){
 			$o=array(
-				"name"=>$row['Field'],
-				"key"=>$row['Key']
+				"name"=>&$row['Field'],
+				"key"=>&$row['Key'],
+				"type"=>&$row['Type'],
+				"default"=>&$row['Default'],
+				"comment"=>&$row['Comment']
 				);
 		}
 		return $o;
@@ -85,57 +88,15 @@ class mysql extends sql{
 		$result=$this->executef("show full columns from `%s`",array($table));
 		while($row=$this->fetchRow($result)){
 			$columns[$row['Field']]=array(
-				"name"=>$row['Field'],
-				"key"=>$row['Key']
+				"name"=>&$row['Field'],
+				"key"=>&$row['Key'],
+				"type"=>&$row['Type'],
+				"default"=>&$row['Default'],
+				"comment"=>&$row['Comment']
 				);
 		}
 		return $columns;
 	}
 	//end of rewriting methods
 }
-/*
-	//ui methods
-	function htmlColumnToInput($column,$id=null,$value=null){
-		if(!$id)$id=$column['Field'];
-		if($value===null)$value=$column['Default'];
-		if(!preg_match("/^([a-z]*)\((.*)\)$/",$info['Type'],$type))preg_match("/^([a-z]*)$/",$info['Type'],$type);
-		switch($type[1]){
-			case "text":
-				$html="<textarea id=\"$id\" name=\"$id\">$value</textarea>";
-				break;
-			case "enum":
-				$options=$type[2];
-				$options=str_replace("'","",$options);
-				$options=explode(",",$options);
-				$html="<select id=\"$id\" name=\"$id\">";
-				while(list($k,$v)=each($options)){
-					if($v==$value){
-						$html.="<option value=\"$v\" selected>$v</option>";
-					}else{
-						$html.="<option value=\"$v\">$v</option>";
-					}
-				}
-				$html.="</select>";
-				break;
-			case "set":
-				$options=$type[2];
-				$options=str_replace("'","",$options);
-				$options=explode(",",$options);
-				$html="<select id=\"".$id."[]\" name=\"".$id."[]\" multiple>";
-				while(list($k,$v)=each($options)){
-					if(strpos(",$value,",",".$v.",")===false){
-						$html.="<option value=\"$v\">$v</option>";
-					}else{
-						$html.="<option value=\"$v\" selected>$v</option>";
-					}
-				}
-				$html.="</select>";
-				break;
-			default:
-				$html="<input id=\"$id\" name=\"$id\" type=\"text\" maxlength=\"".$type[2]."\" value=\"$value\" />";
-				break;
-		}
-		return $html;
-	}
-*/
 ?>
