@@ -33,6 +33,7 @@ class suid{
 	*	{
 	*		field: [f1,f2,...],
 	*		filter: [[f1,=,v1],...],
+	*		order: [[f1,ASC|DESC],...],
 	*		start: 0,
 	*		limit: 1
 	*	}
@@ -47,6 +48,13 @@ class suid{
 		
 		if($field===null)$field=$this->columnNames;
 		if($filter===null)$filter=array(array(1,"=",1));
+		if($order===null){
+			$order=array();
+			reset($this->keyNames);
+			while(list($k,$v)=each($this->keyNames)){
+				$order[]=array($v,"ASC");
+			}
+		}
 		if($start===null)$start=0;
 		if($limit===null)$limit=0;
 		
@@ -66,6 +74,16 @@ class suid{
 		while(list($k,$v)=each($filter)){
 			$string.="and %s %s '%s' ";
 			$array=array_merge($array,$v);
+		}
+		
+		if($order){
+			list($k,$v)=each($order);
+			$string.="order by `%s` %s ";
+			$array=array_merge($array,$v);
+			while(list($k,$v)=each($order)){
+				$string.=",`%s` %s ";
+				$array=array_merge($array,$v);
+			}
 		}
 		
 		if($limit){
