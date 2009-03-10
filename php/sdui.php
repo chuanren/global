@@ -6,8 +6,13 @@ class sdui extends suid{
 	public function htmlSelectTable($options=array()){
 		if($options['field']===null)$options['field']=array_keys($this->selectColumns);
 		if($options['limit']===null)$options['limit']=20;
+		if($options['contextMenu']===null)$options['contextMenu']=array(
+			array("Update","?{$this->actionName}=Update&id="),
+			array("Delete","?{$this->actionName}=Delete&id="),
+			array("Insert","?{$this->actionName}=Insert&")
+			);
 		$o=$this->select($options);
-		$html="<table class=windowTable width=100% cellspacing=0>\n";
+		$html="<table id=sduiSelectTable class=windowTable width=100% cellspacing=0>\n";
 		$html.="<thead><tr>";
 		while(list($k,$v)=each($options['field'])){
 			$v=$this->columns[$v]['comment']?$this->columns[$v]['comment']:$v;
@@ -26,6 +31,24 @@ class sdui extends suid{
 		}
 		$html.="</tbody>";
 		$html.="</table>";
+		if($options['contextMenu']){
+			$html.="
+		<style>@import url('/global/menu/vMenu.css');></style>
+		<script src=/global/menu/contextMenu.js></script>
+		<script>
+		Element.childElements($('sduiSelectTable').getElementsByTagName('tbody')[0]).each(function(tr){
+			var id=tr.readAttribute('sduiID');
+			new contextMenu(tr,[";
+			list($k,$v)=each($options['contextMenu']);
+			$html.="['{$v[0]}','{$v[1]}'+id]";
+			while(list($k,$v)=each($options['contextMenu'])){
+				$html.=",['{$v[0]}','{$v[1]}'+id]";
+			}
+			$html.="]);
+		});
+		</script>
+			";
+		}
 		return $html;
 	}
 	public function htmlReplaceForm($id=null){
