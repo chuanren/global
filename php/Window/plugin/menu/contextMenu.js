@@ -23,7 +23,6 @@ var contextMenu=function(element,menuArray){
 			this.contextMenu.menuElement.show();
 			Event.stop(event);
 	});
-	Event.observe(document.body,"click",this.hideAll);
 };
 contextMenu.prototype={
 	array2html: function(array){
@@ -48,3 +47,4 @@ contextMenu.prototype={
 		$A(document.body.getElementsByClassName("contextMenu")).each(function(element){element.hide()});
 	}
 };
+Event.observe(document.body,"click",this.contextMenu.prototype.hideAll);
