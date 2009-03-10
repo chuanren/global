@@ -8,8 +8,8 @@ class window extends framework{
 		parent::__construct($id,$path);
 		$this->setPlugins(dirname(__file__)."/Window/plugin");
 	}
-	public function alert($msg){
-		$this->stdout[]="<center><div class=windowAlert>$msg</div></center>";
+	public function alert($msg,$href="#"){
+		$this->stdout[]="<center><div class=windowAlert>$msg<hr /><a href=$href onclick='Element.remove(this.parentNode.parentNode);'>OK</a></div></center>";
 	}
 	public function confirm($msg){
 		$confirm=$_GET['windowConfirm'];
