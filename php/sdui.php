@@ -16,12 +16,12 @@ class sdui extends suid{
 		$html.="</tr></thead>\n";
 		$html.="<tbody>\n";
 		while(list($k,$v)=each($o['root'])){
-			$html.="<tr>";
+			$id=$v[$this->keyName];
+			$html.="<tr sduiId=$id>";
 			while(list($kk,$vv)=each($v)){
 				$vv=($vv=="")?"&nbsp;":$vv;
 				$html.="<td>$vv</td>";
 			}
-			$id=$v[$this->keyName];
 			$html.="</tr>\n";
 		}
 		$html.="</tbody>";

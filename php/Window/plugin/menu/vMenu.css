@@ -1,0 +1,45 @@
+.vMenu {
+	z-index:1000;
+	margin:0;
+	padding:0;
+	width:106px;
+}
+.vMenu li a, .vMenu li a:visited {
+	display:block;
+	border:1px solid #aaa;
+	width:104px;
+	height:20px;
+	overflow:hidden;
+	line-height:20px;
+	font-size:11px;
+	text-align:center;
+	text-decoration:none;
+	background:#710069;
+	color:#fff;
+}
+.vMenu li {
+	float: left;
+	position: relative;
+	margin-right: 1px;
+	list-style: none;
+}
+.vMenu li ul {display: none;}
+.vMenu li:hover a {color:#fff; background:#36f;}
+.vMenu li:hover ul {
+	display:block;
+	position:absolute;
+	top:0;
+	left:65px;
+	width:105px;
+}
+.vMenu li:hover ul li.right a {background:#6a3; color:#fff;}
+.vMenu li:hover ul li.right:hover a {background:#6fc; color:#000;}
+.vMenu li:hover ul li ul {display: none;}
+.vMenu li:hover ul li a {display:block; background:#eee; color:#000;}
+.vMenu li:hover ul li a:hover {background:#6fc; color:#000;}
+.vMenu li:hover ul li:hover ul {
+	display:block;
+	position:absolute;
+	left:65px;
+	top:0;
+}

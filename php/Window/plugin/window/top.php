@@ -3,6 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $this->charset;?>">
 <title><?php echo $this->title;?></title>
+<script src="/global/javascript/prototype.js"></script>
 <style>@import url("/global/php/Window/plugin/window/window.css");</style>
 </head>
 <body id="windowBody">
