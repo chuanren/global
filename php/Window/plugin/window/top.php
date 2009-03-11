@@ -4,6 +4,9 @@
 <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $this->charset;?>">
 <title><?php echo $this->title;?></title>
 <script src="/global/javascript/prototype.js"></script>
+<script src="/global/php/Window/plugin/window/window.js"></script>
+<script src="/global/menu/contextMenu.js"></script>
+<style>@import url('/global/menu/vMenu.css');></style>
 <style>@import url("/global/php/Window/plugin/window/window.css");</style>
 </head>
 <body id="windowBody">

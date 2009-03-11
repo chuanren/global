@@ -9,7 +9,7 @@ class window extends framework{
 		$this->setPlugins(dirname(__file__)."/Window/plugin");
 	}
 	public function alert($msg,$href="#"){
-		$this->stdout[]="<center><div class=windowAlert>$msg<hr /><a href=$href onclick='Element.remove(this.parentNode.parentNode);'>OK</a></div></center>";
+		$this->stdout[]="<center><div class=windowAlert>$msg<hr /><a href=$href>OK</a></div></center>";
 	}
 	public function confirm($msg){
 		$confirm=$_GET['windowConfirm'];

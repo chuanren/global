@@ -6,13 +6,8 @@ class sdui extends suid{
 	public function htmlSelectTable($options=array()){
 		if($options['field']===null)$options['field']=array_keys($this->selectColumns);
 		if($options['limit']===null)$options['limit']=20;
-		if($options['contextMenu']===null)$options['contextMenu']=array(
-			array("Update","?{$this->actionName}=Update&id="),
-			array("Delete","?{$this->actionName}=Delete&id="),
-			array("Insert","?{$this->actionName}=Insert&")
-			);
 		$o=$this->select($options);
-		$html="<table id=sduiSelectTable class=windowTable width=100% cellspacing=0>\n";
+		$html="<table id=sduiHtmlSelectTable class=windowTable width=100%>\n";
 		$html.="<thead><tr>";
 		while(list($k,$v)=each($options['field'])){
 			$v=$this->columns[$v]['comment']?$this->columns[$v]['comment']:$v;
@@ -31,24 +26,25 @@ class sdui extends suid{
 		}
 		$html.="</tbody>";
 		$html.="</table>";
-		if($options['contextMenu']){
-			$html.="
-		<style>@import url('/global/menu/vMenu.css');></style>
-		<script src=/global/menu/contextMenu.js></script>
-		<script>
-		Element.childElements($('sduiSelectTable').getElementsByTagName('tbody')[0]).each(function(tr){
+		$options['actionName']=$this->actionName;
+		$html.="<script>
+		//require contextmenu.js
+		var sduiHtmlSelectTableOptions=".json_encode($options).";
+		if(!sduiHtmlSelectTableOptions.contextMenu)sduiHtmlSelectTableOptions.contextMenu=[
+			['Update','?'+sduiHtmlSelectTableOptions.actionName+'=Update&id='],
+			['Delete','?'+sduiHtmlSelectTableOptions.actionName+'=Delete&id='],
+			['Insert','?'+sduiHtmlSelectTableOptions.actionName+'=Insert&']
+		];
+		if(sduiHtmlSelectTableOptions.contextMenu.length)Element.childElements($('sduiHtmlSelectTable').getElementsByTagName('tbody')[0]).each(function(tr){
 			var id=tr.readAttribute('sduiID');
-			new contextMenu(tr,[";
-			list($k,$v)=each($options['contextMenu']);
-			$html.="['{$v[0]}','{$v[1]}'+id]";
-			while(list($k,$v)=each($options['contextMenu'])){
-				$html.=",['{$v[0]}','{$v[1]}'+id]";
-			}
-			$html.="]);
+			var menuArray=[];
+			sduiHtmlSelectTableOptions.contextMenu.each(function(menu,key){
+				menuArray.push([menu[0],menu[1]+id]);
+			});
+			new contextMenu(tr,menuArray);
 		});
 		</script>
-			";
-		}
+		";
 		return $html;
 	}
 	public function htmlReplaceForm($id=null){

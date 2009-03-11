@@ -17,8 +17,8 @@ var contextMenu=function(element,menuArray){
 			var pointer=Event.pointer(event);
 			this.contextMenu.menuElement.setStyle({
 					position: "absolute",
-					left: pointer.x+"px",
-					top: pointer.y+"px"
+					left: pointer.x+1+"px",
+					top: pointer.y+1+"px"
 			});
 			this.contextMenu.menuElement.show();
 			Event.stop(event);
@@ -47,4 +47,6 @@ contextMenu.prototype={
 		$A(document.body.getElementsByClassName("contextMenu")).each(function(element){element.hide()});
 	}
 };
-Event.observe(document.body,"click",this.contextMenu.prototype.hideAll);
+Event.observe(window,"load",function(){
+	Event.observe(document.body,"click",this.contextMenu.prototype.hideAll);
+});
