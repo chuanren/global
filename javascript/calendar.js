@@ -1,7 +1,17 @@
-//version Liu ChuanRen 05/11/08
-var _calendar=new Object();
+var _calendar={};
 _calendar.targetObject=null;
-_calendar.position=new Array(50,50);
+_calendar.position=[50,50];
+
+_calendar.getPosition=function(element){
+	var position={};
+	position.x=0;position.y=0;
+	while(element!=null){
+		position.x+=element.offsetLeft;
+		position.y+=element.offsetTop;
+		element=element.offsetParent;
+	}
+	return position;
+}
 
 _calendar.hidden=function(){
     var divNode=document.getElementById("myCalendarDIV");
@@ -14,8 +24,8 @@ _calendar.show=function(targetInput,initStr){
     {
         _calendar.targetObject=targetInput;
     }
-    if(_calendar.targetObject&&_position){
-		_calendar.position=getPosition(_calendar.targetObject);
+    if(_calendar.targetObject){
+		_calendar.position=_calendar.getPosition(_calendar.targetObject);
     }
    
     var curDate=_calendar.StrToDate(initStr);
@@ -156,7 +166,7 @@ _calendar.subtractDate=function(date1,date2) {
 
 function calendar(input,value,x,y){
 	if(value)input.value=value;
-	if(x&&y)_calendar.position=new Array(x,y);
+	if(x&&y)_calendar.position=[x,y];
 	input.onclick=function(){
 		_calendar.show(this,this.value);
 	}

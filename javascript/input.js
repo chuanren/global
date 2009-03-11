@@ -1,11 +1,10 @@
-//version: Liu ChuanRen, 03/24/08
-/*
+/**
 Enhance input elements, perhaps useful for other elements too. method(input, option):
-readOnly		(need: )
-select			(need: )
+readOnly	(need: )
+select	(need: )
 liveSelect	(need: position.js)
-calendar		(need: position.js, calender.js)
-editor			(need: editor.js)
+calendar	(calendar.js)
+editor	(need: editor.js)
 */
 var _input={};
 _input._id=-1;

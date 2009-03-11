@@ -1,8 +1,17 @@
 <?php
 require_once("suid.php");
+require_once("window.php");
 class sdui extends suid{
+	public $actionName;
 	public $replaceColumns;
 	public $selectColumns;
+	public function sdui($sql,$database,$table,$charset="utf8"){
+		parent::__construct($sql,$database,$table,$charset);
+		$this->actionName="action";
+		$this->replaceColumns=$this->columns;
+		array_shift($this->replaceColumns);
+		$this->selectColumns=$this->columns;
+	}
 	public function htmlSelectTable($options=array()){
 		if($options['field']===null)$options['field']=array_keys($this->selectColumns);
 		if($options['limit']===null)$options['limit']=20;
@@ -27,30 +36,21 @@ class sdui extends suid{
 		$html.="</tbody>";
 		$html.="</table>";
 		$options['actionName']=$this->actionName;
-		$html.="<script>
-		//require contextmenu.js
-		var sduiHtmlSelectTableOptions=".json_encode($options).";
-		if(!sduiHtmlSelectTableOptions.contextMenu)sduiHtmlSelectTableOptions.contextMenu=[
-			['Update','?'+sduiHtmlSelectTableOptions.actionName+'=Update&id='],
-			['Delete','?'+sduiHtmlSelectTableOptions.actionName+'=Delete&id='],
-			['Insert','?'+sduiHtmlSelectTableOptions.actionName+'=Insert&']
-		];
-		if(sduiHtmlSelectTableOptions.contextMenu.length)Element.childElements($('sduiHtmlSelectTable').getElementsByTagName('tbody')[0]).each(function(tr){
-			var id=tr.readAttribute('sduiID');
-			var menuArray=[];
-			sduiHtmlSelectTableOptions.contextMenu.each(function(menu,key){
-				menuArray.push([menu[0],menu[1]+id]);
-			});
-			new contextMenu(tr,menuArray);
-		});
-		</script>
-		";
+		$html.="<script>var sduiHtmlSelectTableOptions=".json_encode($options).";</script>";
+		$html.="<script src=/global/php/SDUI/htmlSelectTable.js></script>";
 		return $html;
 	}
-	public function htmlReplaceForm($id=null){
+	
+	/**
+	* @access public
+	* @param $id null||ID
+	* @param $values array the key in the array should be the columnName, the value in the array can be: string, array(string), array(array(string),array(string))
+	* @return html
+	*/
+	public function htmlReplaceForm($id=null,$values=array()){
 		if($id===null){
 			$row=null;
-			$legend="New Item";
+			$legend="New Item(Id: #)";
 		}else{
 			$row=$this->selectById($id);
 			$legend="Update Item(Id: $id)";
@@ -58,15 +58,54 @@ class sdui extends suid{
 		$html="<form action=\"#\" method=\"post\" class=windowForm><fieldset><legend>$legend</legend><ul>";
 		reset($this->replaceColumns);
 		while(list($k,$v)=each($this->replaceColumns)){
-			$span=$v['comment']?$v['comment']:$v['name'];
+			$name=$v['name'];
+			$span=$v['comment']?$v['comment']:$name;
 			$html.="<li><label>$span</label>";
-			$html.=sql::htmlColumnToInput($v,"ReplaceForm[{$v['name']}]",$row[$v['name']]);
+			$html.=sql::htmlColumnToInput($v,"sduiHtmlReplaceForm[{$name}]",$row[$name]);
 			$html.="</li>";
 		}
 		$html.="</ul></fieldset>";
 		$html.="<input type=reset value=Reset />";
-		$html.="<input type=submit name=submit value=Submit />";
+		$html.="<input type=submit name=sduiHtmlReplaceFormSubmit value=Submit />";
 		$html.="</form>";
+		$html.="<script>var sduiHtmlReplaceFormValues=".json_encode($values).";</script>";
+		$html.="<script src=/global/php/SDUI/htmlReplaceForm.js></script>";
+		return $html;
+	}
+	public function handleRequest(){
+		switch($_GET[$this->actionName]){
+		case "Update":
+			$id=$_GET['id'];
+			if($_POST['sduiHtmlReplaceFormSubmit']){
+				$this->updateById($id,$_POST['sduiHtmlReplaceForm']);
+				$html=window::alert("Succeeded to Update ID={$id}","?{$this->actionName}");
+			}else{
+				$html=$this->htmlReplaceForm($id);
+			}
+			break;
+		case "Insert":
+			if($_POST['sduiHtmlReplaceFormSubmit']){
+				$id=$this->insertById($_POST['sduiHtmlReplaceForm']);
+				$html=window::alert("Succeeded to Insert ID={$id}","?{$this->actionName}");
+			}else{
+				$html=$this->htmlReplaceForm();
+			}
+			break;
+		case "Delete":
+			$id=$_GET['id'];
+			$confirm=window::confirm("Confirm to DELETE ID={$id}?");
+			if($confirm=="yes"){
+				if($this->deleteById($id))$html=window::alert("Succeeded to Delete ID={$id}","?{$this->actionName}");
+				else $html=window::alert("Failed to Delete ID={$id}","?{$this->actionName}");
+			}elseif($confirm=="no"){
+				$html=window::alert("Canceled to Delete ID: {$id}","?{$this->actionName}");
+			}else{
+				$html=$confirm;
+			}
+			break;
+		default:
+			$html=$this->htmlSelectTable();
+		}
 		return $html;
 	}
 }

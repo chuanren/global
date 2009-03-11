@@ -4,6 +4,10 @@
 <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $this->charset;?>">
 <title><?php echo $this->title;?></title>
 <script src="/global/javascript/prototype.js"></script>
+<script src="/global/javascript/input.js"></script>
+<script src="/global/javascript/calendar.js"></script>
+<script src="/global/javascript/editor.js"></script>
+<script src="/global/FCKeditor/fckeditor.js"></script>
 <script src="/global/php/Window/plugin/window/window.js"></script>
 <script src="/global/menu/contextMenu.js"></script>
 <style>@import url('/global/menu/vMenu.css');></style>
