@@ -45,6 +45,7 @@ class sdui extends suid{
 		$options['actionName']=$this->actionName;
 		$html.="<script>var sduiHtmlSelectTableOptions=".json_encode($options).";</script>";
 		$html.="<script src=/global/php/SDUI/htmlSelectTable.js></script>";
+		$html.="<style>@import url(/global/php/SDUI/htmlSelectTable.css);</style>";
 		return $html;
 	}
 	
