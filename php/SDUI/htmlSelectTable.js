@@ -14,3 +14,22 @@ if(sduiHtmlSelectTableOptions.contextMenu.length)Element.childElements($('sduiHt
 	});
 	new contextMenu(tr,menuArray);
 });
+Element.update($('sduiHtmlSelectTable').getElementsBySelector("tfoot td")[0],function(){
+		var html="";
+		var page=sduiHtmlSelectTableOptions.start/sduiHtmlSelectTableOptions.limit+1;
+		var pages=Math.ceil(sduiHtmlSelectTableOptions.count/sduiHtmlSelectTableOptions.limit);
+		html+=" Page: "+page+"("+pages+") ";
+		var i,ii,t;
+		for(i=Math.max(1,page-5),ii=page;i<ii;i++){
+			html+="<a href=?"+sduiHtmlSelectTableOptions.actionName+"=Select&start="
+			+sduiHtmlSelectTableOptions.limit*(i-1)
+			+">"+i+"</a> ";
+		}
+		html+=page;
+		for(i=page+i,ii=Math.min(pages,page+5);i<=ii;i++){
+			html+=" <a href=?"+sduiHtmlSelectTableOptions.actionName+"=Select&start="
+			+sduiHtmlSelectTableOptions.limit*(i-1)
+			+">"+i+"</a>";
+		}
+		return html;
+}());
