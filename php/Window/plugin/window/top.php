@@ -4,6 +4,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $this->charset;?>">
 <title><?php echo $this->title;?></title>
 <script src="/global/javascript/prototype.js"></script>
+<script src="/global/javascript/setPointer.js"></script>
 <script src="/global/javascript/input.js"></script>
 <script src="/global/javascript/calendar.js"></script>
 <script src="/global/javascript/editor.js"></script>

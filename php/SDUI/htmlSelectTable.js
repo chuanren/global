@@ -1,12 +1,14 @@
 /**
-* require contextmenu.js
+* require contextmenu.js setPointer.js
 */
+var sduiHtmlSelectTableTbody=$('sduiHtmlSelectTable').select("tbody")[0];
+setPointer(sduiHtmlSelectTableTbody);
 if(!sduiHtmlSelectTableOptions.contextMenu)sduiHtmlSelectTableOptions.contextMenu=[
 	['Update','?'+sduiHtmlSelectTableOptions.actionName+'=Update&id='],
 	['Delete','?'+sduiHtmlSelectTableOptions.actionName+'=Delete&id='],
 	['Insert','?'+sduiHtmlSelectTableOptions.actionName+'=Insert&']
 ];
-if(sduiHtmlSelectTableOptions.contextMenu.length)Element.childElements($('sduiHtmlSelectTable').getElementsByTagName('tbody')[0]).each(function(tr){
+if(sduiHtmlSelectTableOptions.contextMenu.length)sduiHtmlSelectTableTbody.select("tr").each(function(tr){
 	var id=tr.readAttribute('sduiID');
 	var menuArray=[];
 	sduiHtmlSelectTableOptions.contextMenu.each(function(menu,key){
@@ -14,7 +16,7 @@ if(sduiHtmlSelectTableOptions.contextMenu.length)Element.childElements($('sduiHt
 	});
 	new contextMenu(tr,menuArray);
 });
-Element.update($('sduiHtmlSelectTable').getElementsBySelector("tfoot td")[0],function(){
+Element.update($('sduiHtmlSelectTable').select("tfoot td")[0],function(){
 		var html="";
 		var page=sduiHtmlSelectTableOptions.start/sduiHtmlSelectTableOptions.limit+1;
 		var pages=Math.ceil(sduiHtmlSelectTableOptions.count/sduiHtmlSelectTableOptions.limit);

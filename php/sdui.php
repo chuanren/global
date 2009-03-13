@@ -11,14 +11,15 @@ class sdui extends suid{
 		$this->replaceColumns=$this->columns;
 		array_shift($this->replaceColumns);
 		$this->selectColumns=$this->columns;
-		$_SESSION['sduiHtmlSelectTableOptions']=array();
 	}
 	public function htmlSelectTable($options=array()){
-		$options=array_merge($_SESSION['sduiHtmlSelectTableOptions'],$options);
+		$session=&$_SESSION["sduiHtmlSelectTableOptions_{$this->actionName}"];
+		$session||($session=array());
+		$options=array_merge($session,$options);
 		if($options['field']===null)$options['field']=array_keys($this->selectColumns);
 		if($options['start']===null)$options['start']=0;
 		if($options['limit']===null)$options['limit']=20;
-		$_SESSION['sduiHtmlSelectTableOptions']=$options;
+		$session=$options;
 		$o=$this->select($options);
 		$html="<table id=sduiHtmlSelectTable class=windowTable width=100%>\n";
 		$html.="<thead><tr>";
@@ -112,9 +113,8 @@ class sdui extends suid{
 			}
 			break;
 		default:
-			$html=$this->htmlSelectTable(array(
-				"start"=>$_GET['start']
-				));
+			$options=$_GET;
+			$html=$this->htmlSelectTable($options);
 		}
 		return $html;
 	}
