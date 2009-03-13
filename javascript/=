@@ -1,0 +1,17 @@
+<iframe id="main" name="main" style="height:700px" onload="javascript:iframeserver(this);"></iframe>
+function iframeserver(iframe){
+	iframe.style.height=iframe.contentWindow.document.body.scrollHeight+"px";
+	var h1=0,h2=0;
+	iframe.parentNode.style.height = iframe.offsetHeight +"px";
+	iframe.style.height = "0px";
+	if(iframe.contentWindow.document.documentElement&&iframe.contentWindow.document.documentElement.scrollHeight){
+		h1=iframe.contentWindow.document.documentElement.scrollHeight;
+	}
+	if(iframe.contentWindow.document.body){
+		h2=iframe.contentWindow.document.body.scrollHeight;
+	}
+	var h=Math.max(h1,h2,550);
+	if(iframe.contentWindow.document.all) {h += 4;}
+	if(iframe.contentWindow.window.opera) {h += 1;}
+	iframe.style.height=iframe.parentNode.style.height = h +"px";
+}
