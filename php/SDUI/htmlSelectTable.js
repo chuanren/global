@@ -2,6 +2,8 @@
 * require contextmenu.js setPointer.js
 */
 var sduiHtmlSelectTableThead=$('sduiHtmlSelectTable').select("thead")[0];
+//setColWidth
+setColWidth(sduiHtmlSelectTableThead);
 //when click the thead, order the data by the td.field
 Event.observe(sduiHtmlSelectTableThead,"click",function(event){
 		var td;
