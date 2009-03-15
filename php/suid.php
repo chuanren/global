@@ -39,6 +39,7 @@ class suid{
 	*	}
 	* @return array
 	*	{
+	*		options: {},
 	*		root: [{f1:v1,f2:v2,...},...],
 	*		count: 1
 	*	}
@@ -95,6 +96,13 @@ class suid{
 		$this->sql->query($string,$array);
 		
 		$o=array(
+			"options"=>array(
+				"field"=>$field,
+				"filter"=>$filter,
+				"order"=>$order,
+				"start"=>$start,
+				"limit"=>$limit
+				),
 			"root"=>$this->sql->getAllRows(),
 			"count"=>$this->sql->selectedRows()
 			);
@@ -113,6 +121,7 @@ class suid{
 	*	}
 	* @return array
 	*	{
+	*		options: {},
 	*		count: 1,
 	*		message: ""
 	*	}
@@ -153,6 +162,11 @@ class suid{
 		$this->sql->query($string,$array);
 		
 		$o=array(
+			"options"=>array(
+				"filter"=>$filter,
+				"value"=>$value,
+				"limit"=>$limit
+				),
 			"count"=>$this->sql->affectedRows(),
 			"message"=>""
 			);
@@ -169,6 +183,7 @@ class suid{
 	*	}
 	* @return array
 	*	{
+	*		options: {},
 	*		count: 1,
 	*		message: ""
 	*	}
@@ -213,6 +228,7 @@ class suid{
 		$this->sql->query($string,$array);
 		
 		$o=array(
+			"options"=>array("root"=>$root),
 			"count"=>$this->sql->affectedRows(),
 			"message"=>""
 			);
@@ -230,6 +246,7 @@ class suid{
 	*	}
 	* @return array
 	*	{
+	*		options: {},
 	*		count: 1,
 	*		message: ""
 	*	}
@@ -256,6 +273,10 @@ class suid{
 		$this->sql->query($string,$array);
 		
 		$o=array(
+			"options"=>array(
+				"filter"=>$filter,
+				"limit"=>$limit
+				),
 			"count"=>$this->sql->affectedRows(),
 			"message"=>""
 			);

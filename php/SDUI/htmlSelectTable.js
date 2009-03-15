@@ -1,8 +1,30 @@
 /**
 * require contextmenu.js setPointer.js
 */
+var sduiHtmlSelectTableThead=$('sduiHtmlSelectTable').select("thead")[0];
+//when click the thead, order the data by the td.field
+Event.observe(sduiHtmlSelectTableThead,"click",function(event){
+		var td;
+		if(td=Event.findElement(event,"td")){
+			var sort=td.readAttribute("field");
+			var dir=sduiHtmlSelectTableOptions.order[0][1];
+			dir=(dir=="ASC")?"DESC":"ASC";
+			location="?"+sduiHtmlSelectTableOptions.actionName+'=Select&order[0][0]='+sort+'&order[0][1]='+dir;
+		}
+});
+//set the td.style.backgroundImage by the order
+(function(){
+	var sort=sduiHtmlSelectTableOptions.order[0][0];
+	var dir=sduiHtmlSelectTableOptions.order[0][1];
+	var td=sduiHtmlSelectTableThead.select('td[field='+sort+']')[0];
+	td.setStyle({
+			backgroundImage: "url(/global/image/blue/"+dir.toLowerCase()+".png)"
+	});
+})();
 var sduiHtmlSelectTableTbody=$('sduiHtmlSelectTable').select("tbody")[0];
+//setPointer
 setPointer(sduiHtmlSelectTableTbody);
+//set contextMenu of tbody.tr
 if(!sduiHtmlSelectTableOptions.contextMenu)sduiHtmlSelectTableOptions.contextMenu=[
 	['Update','?'+sduiHtmlSelectTableOptions.actionName+'=Update&id='],
 	['Delete','?'+sduiHtmlSelectTableOptions.actionName+'=Delete&id='],
@@ -16,6 +38,7 @@ if(sduiHtmlSelectTableOptions.contextMenu.length)sduiHtmlSelectTableTbody.select
 	});
 	new contextMenu(tr,menuArray);
 });
+//pagingtoolbar
 Element.update($('sduiHtmlSelectTable').select("tfoot td")[0],function(){
 		var html="";
 		var page=sduiHtmlSelectTableOptions.start/sduiHtmlSelectTableOptions.limit+1;

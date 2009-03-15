@@ -1,3 +1,9 @@
+#sduiHtmlSelectTable thead{
+	cursor: pointer;
+}
+#sduiHtmlSelectTable thead td{
+	background: no-repeat;
+}
 #sduiHtmlSelectTable thead,#sduiHtmlSelectTable tfoot{
 	background: url("../../image/blue/background.png");
 }

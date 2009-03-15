@@ -21,11 +21,12 @@ class sdui extends suid{
 		if($options['limit']===null)$options['limit']=20;
 		$session=$options;
 		$o=$this->select($options);
+		$options=array_merge($options,$o['options']);
 		$html="<table id=sduiHtmlSelectTable class=windowTable width=100%>\n";
 		$html.="<thead><tr>";
 		while(list($k,$v)=each($options['field'])){
-			$v=$this->columns[$v]['comment']?$this->columns[$v]['comment']:$v;
-			$html.="<td>$v</td>";
+			$text=$this->columns[$v]['comment']?$this->columns[$v]['comment']:$v;
+			$html.="<td field=$v>$text</td>";
 		}
 		$html.="</tr></thead>\n";
 		$html.="<tbody>\n";
