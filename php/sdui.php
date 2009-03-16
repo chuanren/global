@@ -87,6 +87,11 @@ class sdui extends suid{
 		case "Update":
 			$id=$_GET['id'];
 			if($_POST['sduiHtmlReplaceFormSubmit']){
+				if(ini_get('magic_quotes_gpc')){
+					while(list($k,$v)=each($_POST['sduiHtmlReplaceForm'])){
+						if(is_string($v))$_POST['sduiHtmlReplaceForm'][$k]=stripslashes($v);
+					}
+				}
 				if($this->updateById($id,$_POST['sduiHtmlReplaceForm']))$html=window::alert("Succeeded to Update ID={$id}","?{$this->actionName}");
 				else	$html=window::alert("Failed to Update ID={$id}","?{$this->actionName}");
 			}else{
@@ -95,6 +100,11 @@ class sdui extends suid{
 			break;
 		case "Insert":
 			if($_POST['sduiHtmlReplaceFormSubmit']){
+				if(ini_get('magic_quotes_gpc')){
+					while(list($k,$v)=each($_POST['sduiHtmlReplaceForm'])){
+						if(is_string($v))$_POST['sduiHtmlReplaceForm'][$k]=stripslashes($v);
+					}
+				}
 				$id=$this->insertById($_POST['sduiHtmlReplaceForm']);
 				$html=window::alert("Succeeded to Insert ID={$id}","?{$this->actionName}");
 			}else{
