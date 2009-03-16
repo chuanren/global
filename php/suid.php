@@ -53,7 +53,7 @@ class suid{
 			$order=array();
 			reset($this->keyNames);
 			while(list($k,$v)=each($this->keyNames)){
-				$order[]=array($v,"ASC");
+				$order[]=array($v);
 			}
 		}
 		if($start===null)$start=0;
@@ -80,9 +80,17 @@ class suid{
 		if($order){
 			list($k,$v)=each($order);
 			$string.="order by `%s` %s ";
+			if($v[1]===null){
+				$v[1]="ASC";
+				$order[$k]=$v;
+			}
 			$array=array_merge($array,$v);
 			while(list($k,$v)=each($order)){
 				$string.=",`%s` %s ";
+				if($v[1]===null){
+					$v[1]="ASC";
+					$order[$k]=$v;
+				}
 				$array=array_merge($array,$v);
 			}
 		}
