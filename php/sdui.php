@@ -87,8 +87,8 @@ class sdui extends suid{
 		case "Update":
 			$id=$_GET['id'];
 			if($_POST['sduiHtmlReplaceFormSubmit']){
-				$this->updateById($id,$_POST['sduiHtmlReplaceForm']);
-				$html=window::alert("Succeeded to Update ID={$id}","?{$this->actionName}");
+				if($this->updateById($id,$_POST['sduiHtmlReplaceForm']))$html=window::alert("Succeeded to Update ID={$id}","?{$this->actionName}");
+				else	$html=window::alert("Failed to Update ID={$id}","?{$this->actionName}");
 			}else{
 				$html=$this->htmlReplaceForm($id);
 			}
