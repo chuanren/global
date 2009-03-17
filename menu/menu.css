@@ -28,6 +28,7 @@
 	width: 105px;
 	display: none;
 }
+*+html .menu ul{margin-left: 0px;}
 .menu li:hover a {color:#fff; background:#36f;}
 .menu li:hover ul {
 	display: block;
