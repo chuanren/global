@@ -8,11 +8,14 @@ var contextMenu=function(element,menuArray){
 	this.element.contextMenu=this;
 	this.menuArray=menuArray;
 	this.menuHtml=this.array2html(this.menuArray);
-	Element.insert(document.body,this.menuHtml);
-	this.menuElement=document.body.lastChild;
-	this.menuElement.hide();
-	this.menuElement.addClassName("vMenu contextMenu");
 	Event.observe(this.element,"contextmenu",function(event){
+			if(!this.menuElement){
+				//if insert immediately, ie will occur error
+				Element.insert(document.body,this.menuHtml);
+				this.menuElement=document.body.lastChild;
+				this.menuElement.hide();
+				this.menuElement.addClassName("vMenu contextMenu");
+			}
 			this.contextMenu.hideAll();
 			var pointer=Event.pointer(event);
 			this.contextMenu.menuElement.setStyle({
