@@ -12,7 +12,7 @@ var contextMenu=function(element,menuArray){
 			if(!this.contextMenu.menuElement){
 				//if insert immediately, ie will occur error
 				Element.insert(document.body,this.contextMenu.menuHtml);
-				this.contextMenu.menuElement=document.body.lastChild;
+				this.contextMenu.menuElement=$(document.body.lastChild);
 				this.contextMenu.menuElement.hide();
 				this.contextMenu.menuElement.addClassName("vMenu contextMenu");
 			}
