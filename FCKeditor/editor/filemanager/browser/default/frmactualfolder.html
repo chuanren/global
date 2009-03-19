@@ -36,7 +36,7 @@
 		// Test if we can access a parent property.
 		try
 		{
-			var test = window.top.opener.document.domain ;
+			var test = window.parent.opener.document.domain ;
 			break ;
 		}
 		catch( e ) {}
@@ -71,7 +71,7 @@ function SetCurrentFolder( resourceType, folderPath )
 
 window.onload = function()
 {
-	window.top.IsLoadedActualFolder = true ;
+	window.parent.IsLoadedActualFolder = true ;
 }
 
 		</script>

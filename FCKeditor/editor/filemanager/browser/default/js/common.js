@@ -32,7 +32,7 @@
 		// Test if we can access a parent property.
 		try
 		{
-			var test = window.top.opener.document.domain ;
+			var test = window.parent.opener.document.domain ;
 			break ;
 		}
 		catch( e ) {}
