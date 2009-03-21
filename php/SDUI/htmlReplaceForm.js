@@ -13,6 +13,9 @@ if(!Object.isArray(sduiHtmlReplaceFormValues)){
 				case 'inputEditor':
 					inputEditor(input);
 					break;
+				case 'inputReadOnly':
+					inputReadOnly(input);
+					break;
 				default:
 					input.value=p.value;
 					break;
@@ -21,7 +24,23 @@ if(!Object.isArray(sduiHtmlReplaceFormValues)){
 				if(Object.isArray(p.value[0])&&Object.isArray(p.value[1])){
 					inputSelect(input,p.value[0],p.value[1]);
 				}else{
-					inputSelect(input,p.value);
+					switch(p.value[0]){
+					case 'inputCalendar':
+						input.value=p.value[1];
+						inputCalendar(input);
+						break;
+					case 'inputEditor':
+						input.value=p.value[1];
+						inputEditor(input);
+						break;
+					case 'inputReadOnly':
+						input.value=p.value[1];
+						inputReadOnly(input);
+						break;
+					default:
+						inputSelect(input,p.value);
+						break;
+					}
 				}
 			}
 	});
