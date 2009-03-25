@@ -294,6 +294,7 @@ class suid{
 	
 	/**
 	* function to count
+	* Notice: the function just count one result, in another word, it can not be used for "select count(f1), count(f2)..."! It can be used as "select count(f1)...", "select count(*)" or "select count(distinct f1, f2,...)".
 	* @access public
 	* @param $options
 	*	{
@@ -304,7 +305,7 @@ class suid{
 	*	}
 	* @return array
 	*	{
-	*		result: 0,
+	*		result: [0,0,...]||0,
 	*		message:""
 	*	}
 	*/
@@ -315,7 +316,6 @@ class suid{
 		if($field===null)$field="*";
 		if($group===null)true;
 		if($distinct===null)$distinct="";else $distinct="distinct";
-		
 		
 		$string="select count($distinct ";
 		$array=array();
@@ -340,10 +340,15 @@ class suid{
 		}
 		
 		$this->sql->query($string,$array);
-		$o=$this->sql->getRow();
+		$rows=$this->sql->getAllRows();
+		$o['result']=array();
+		while(list($k,$v)=each($rows)){
+			$o['result'][]=$v['result'];
+		}
+		if(count($o['result'])==1)$o['result']=$o['result'][0];
 		$o['message']="";
 		
-		return $o;		
+		return $o;
 	}
 	
 	function avg(){
@@ -355,7 +360,60 @@ class suid{
 	function max(){
 	}
 	
-	function sum(){
+	/**
+	* @access public
+	* @param $options
+	*	{
+	*		filter: [[f1,like,v1],...]
+	*		field: [f1,...]
+	*		group: [f1,...]
+	*	}
+	* @return array||null
+	*	{
+	*		result: [{f1:sum1,f2:sum2},{f1:sum1,f2:sum2},...]||{f1:sum1,f2:sum2}||sum,
+	*		message: "" 
+	*	}
+	*/
+	function sum($options){
+		extract($options);
+		
+		if($filter===null)$filter=array(array(1,"=",1));
+		if($field===null)return;
+		if($group===null)true;
+		
+		$string="select ";
+		$array=array();
+		
+		list($k,$v)=each($field);
+		$string.="sum(`%s`) as `%s` ";
+		$array[]=$v;
+		$array[]=$v;
+		while(list($k,$v)=each($field)){
+			$string.=", sum(`%s`) as `%s` ";
+			$array[]=$v;
+			$array[]=$v;
+		}
+		
+		$string.="from `%s` where ";
+		$array[]=$this->table;
+		
+		while(list($k,$v)=each($filter)){
+			$string.="%s %s '%s' ";
+			$array=array_merge($array,$v);
+		}
+		
+		if($group){
+			$string.="group by `".implode("`,`",array_fill(0,count($group),"%s"))."` ";
+			$array=array_merge($array,$group);
+		}
+		
+		$this->sql->query($string,$array);
+		$o['result']=$this->sql->getAllRows();
+		if(count($o['result'])==1)$o['result']=$o['result'][0];
+		if(count($field)==1)$o['result']=$o['result'][$field];
+		$o['message']="";
+		
+		return $o;
 	}
 	
 	/**
