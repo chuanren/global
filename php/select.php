@@ -111,7 +111,7 @@ class select{
 		}
 		
 		if($order){
-			$string.="order by "
+			$string.="order by ";
 			$c="";
 			while(list($k,$v)=each($order)){
 				$string.=$c;
@@ -379,7 +379,7 @@ class select{
 	*/
 	function getBy($table,$field,$value){
 		$o=$this->get(array(
-			"filter"=>array(array($table,$field,"=",$value))
+			"filter"=>array(array($table,$field,"=",$value)),
 			"start"=>0,
 			"limit"=>1
 			));
