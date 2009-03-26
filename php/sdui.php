@@ -65,7 +65,7 @@ class sdui extends suid{
 			$row=$this->selectById($id);
 			$legend="Update Item(Id: $id)";
 		}
-		$html="<form action=\"#\" method=\"post\" class=windowForm><fieldset><legend>$legend</legend><ul>";
+		$html="<form id=sduiHtmlReplaceForm action=\"#\" method=\"post\" class=windowForm><fieldset><legend>$legend</legend><ul>";
 		reset($this->replaceColumns);
 		while(list($k,$v)=each($this->replaceColumns)){
 			$name=$v['name'];

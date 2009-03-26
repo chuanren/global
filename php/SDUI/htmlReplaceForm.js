@@ -1,6 +1,7 @@
 /**
 * require input.js
 */
+setPointer("sduiHtmlReplaceForm",null,{mouse:false,click:false});
 if(!Object.isArray(sduiHtmlReplaceFormValues)){
 	sduiHtmlReplaceFormValues=new Hash(sduiHtmlReplaceFormValues);
 	sduiHtmlReplaceFormValues.each(function(p){

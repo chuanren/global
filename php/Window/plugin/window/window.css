@@ -103,10 +103,17 @@ form, .windowForm{
 	font-weight: bold;
 }
 .windowForm fieldset ul{
+	margin: 10px;
+	border-top: 1px solid #b6cae0;
+	padding: 0px;
 	list-style: none!important;
 }
 .windowForm fieldset ul li{
-	margin: 5px 0px;
+	margin: 0px;
+	border-right: 1px solid #b6cae0;
+	border-bottom: 1px solid #b6cae0;
+	border-left: 1px solid #b6cae0;
+	padding: 2px;
 }
 .windowForm fieldset ul li label{
 	float: left;
