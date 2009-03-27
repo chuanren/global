@@ -40,7 +40,7 @@ class suid{
 			if($l==3){
 				for($i=0;$i<$this->tableNumber;$i++){
 					if(in_array($v[0],$this->columnNames[$i])){
-						$condition[$i]=$v;
+						$condition[$i][]=$v;
 						break;
 					}
 				}
@@ -48,10 +48,10 @@ class suid{
 				$keys=array_keys($this->table,$v[0]);
 				if($keys){
 					$i=$keys[0];
-					$condition[$i]=$v;
+					$condition[$i][]=$v;
 				}
 			}else{
-				$condition[-1]=$v;
+				$condition[-1][]=$v;
 			}
 		}
 		$this->condition=$condition;
@@ -447,7 +447,7 @@ class suid{
 		
 		$this->parseField($field,$string,$array);
 		
-		$string.=") as `result` from `".implode("`,`",array_fill(0,count($this->table),"%s"))."` where ";
+		$string.=") as `result` from `".implode("`,`",array_fill(0,$this->tableNumber,"%s"))."` where ";
 		$array=array_merge($array,$this->table);
 		
 		$this->parseFilter($filter,$string,$array);
@@ -517,8 +517,8 @@ class suid{
 			$l=count($v);
 			if($l==1){
 				$string.="sum(`%s`) as `%s` ";
-				$array[]=$v;
-				$array[]=$v;
+				$array[]=$v[0];
+				$array[]=$v[0];
 			}elseif($l==2){
 				$string.="sum(`%s`.`%s`) as `%s_%s` ";
 				$array[]=$v[0];
@@ -533,7 +533,7 @@ class suid{
 			}
 		}
 		
-		$string.="from `".implode("`,`",array_fill(0,count($this->table),"%s"))."` where ";
+		$string.="from `".implode("`,`",array_fill(0,$this->tableNumber,"%s"))."` where ";
 		$array=array_merge($array,$this->table);
 		
 		$this->parseFilter($filter,$string,$array);
