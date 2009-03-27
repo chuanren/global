@@ -8,9 +8,9 @@ class sdui extends suid{
 	public function sdui($sql,$database,$table,$charset="utf8"){
 		parent::__construct($sql,$database,$table,$charset);
 		$this->actionName="action";
-		$this->replaceColumns=$this->columns;
+		$this->replaceColumns=$this->columns[0];
 		array_shift($this->replaceColumns);
-		$this->selectColumns=$this->columns;
+		$this->selectColumns=$this->columns[0];
 	}
 	public function htmlSelectTable($options=array()){
 		$session=&$_SESSION["sduiHtmlSelectTableOptions_{$this->actionName}"];
@@ -25,13 +25,13 @@ class sdui extends suid{
 		$html="<table id=sduiHtmlSelectTable class=windowTable width=100%>\n";
 		$html.="<thead><tr>";
 		while(list($k,$v)=each($options['field'])){
-			$text=$this->columns[$v]['comment']?$this->columns[$v]['comment']:$v;
+			$text=$this->columns[0][$v]['comment']?$this->columns[0][$v]['comment']:$v;
 			$html.="<td field=$v>$text</td>";
 		}
 		$html.="</tr></thead>\n";
 		$html.="<tbody>\n";
 		while(list($k,$v)=each($o['root'])){
-			$id=$v[$this->keyName];
+			$id=$v[$this->keyName[0]];
 			$html.="<tr sduiId=$id>";
 			while(list($kk,$vv)=each($v)){
 				$vv=($vv=="")?"&nbsp;":$vv;

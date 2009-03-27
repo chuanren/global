@@ -1,28 +1,134 @@
 <?php
 class suid{
-	var $sql;
-	var $database;
-	var $table;
-	var $columns;
-	var $columnNames;
-	var $keyNames;
-	var $keyName;
-	var $charset;
-	function suid($sql,$database,$table,$charset="utf8"){
+	public $sql;
+	public $database;
+	public $table;
+	public $condition=array();//[[t1,f1,like,t2,f2],[t1,f1,like,v1],[f1,like,v1],...]
+	public $columns;
+	public $columnNames;
+	public $keyNames;
+	public $keyName;
+	public $charset="utf8";
+	public $tableNumber;
+	function suid($sql,$database,$table,$condition=array(),$charset="utf8"){
 		$this->sql=$sql;
 		$this->database=$database;
-		$this->table=$table;
-		$this->charset=$charset;
+		$this->table=is_array($table)?$table:array($table);
+		is_array($arg=$condition)?($this->condition=$arg):($this->charset=$arg);
+		is_array($arg=$charset)?($this->condition=$arg):($this->charset=$arg);
 		$this->sql->setDatabase($this->database);
+		$this->tableNumber=count($this->table);
 		$this->sql->setCharset($this->charset);
-		$this->columns=$this->sql->getAllColumns($this->table);
-		$this->columnNames=array_keys($this->columns);
+		$this->columns=array();
+		$this->columnsNames=array();
 		$this->keyNames=array();
-		while(list($k,$v)=each($this->columns)){
-			if($v['key']=="PRI")$this->keyNames[]=$v['name'];
+		$this->keyName=array();
+		for($i=0;$i<$this->tableNumber;$i++){
+			$this->columns[$i]=$this->sql->getAllColumns($this->table[$i]);
+			$this->columnNames[$i]=array_keys($this->columns[$i]);
+			$this->keyNames[$i]=array();
+			while(list($k,$v)=each($this->columns[$i])){
+				if($v['key']=="PRI")$this->keyNames[$i][]=$v['name'];
+			}
+			if(count($this->keyNames[$i])==1){
+				$this->keyName[$i]=$this->keyNames[$i][0];
+			}
 		}
-		if(count($this->keyNames)==1){
-			$this->keyName=$this->keyNames[0];
+		$condition=array_fill(-1,$this->tableNumber+1,array());
+		while(list($k,$v)=each($this->condition)){
+			$l=count($v);
+			if($l==3){
+				for($i=0;$i<$this->tableNumber;$i++){
+					if(in_array($v[0],$this->columnNames[$i])){
+						$condition[$i]=$v;
+						break;
+					}
+				}
+			}elseif($l==4){
+				$keys=array_keys($this->table,$v[0]);
+				if($keys){
+					$i=$keys[0];
+					$condition[$i]=$v;
+				}
+			}else{
+				$condition[-1]=$v;
+			}
+		}
+		$this->condition=$condition;
+	}
+	
+	/**
+	* function to parseField
+	* @access public
+	* @param $field
+	*	[[t,f,n],[t,f],[f],f,...]
+	* @param $string
+	* @param $array
+	*/
+	public function parseField($field,&$string,&$array){
+		$c="";
+		while(list($k,$v)=each($field)){
+			is_array($v)||($v=array($v));
+			$string.=$c;
+			$c=", ";
+			$l=count($v);
+			if($l==1){
+				$string.="`%s` ";
+			}elseif($l==2){
+				$string.="`%s`.`%s` ";
+			}elseif($l==3){
+				$string.="`%s`.`%s` as `%s_%s` ";
+			}
+			$array=array_merge($array,$v);
+		}
+	}
+	
+	/**
+	* function to parseFilter
+	* @access public
+	* @param $filter
+	*	[[t1,f1,like,t2,f2],[t,f,like,v],[f,=,v],...]
+	* @param $string
+	* @param $array
+	*/
+	public function parseFilter($filter,&$string,&$array){
+		$c="";
+		while(list($k,$v)=each($filter)){
+			$string.=$c;
+			$c="and ";
+			$l=count($v);
+			if($l==3){
+				$string.="%s %s '%s' ";
+			}elseif($l==4){
+				$string.="`%s`.`%s` %s '%s' ";
+			}elseif($l==5){
+				$string.="`%s`.`%s` %s `%s`.`%s` ";
+			}
+			$array=array_merge($array,$v);
+		}
+	}
+	
+	/**
+	* function to parseGroup
+	* @access public
+	* @param $group
+	*	[[t,f],[f],f,...]
+	* @param $string
+	* @param $array
+	*/
+	public function parseGroup($group,&$string,&$array){
+		$c="";
+		while(list($k,$v)=each($group)){
+			is_array($v)||($v=array($v));
+			$string.=$c;
+			$c=", ";
+			$l=count($v);
+			if($l==1){
+				$string.="`%s`";
+			}elseif($l==2){
+				$string.="`%s`.`%s` ";
+			}
+			$array=array_merge($array,$v);
 		}
 	}
 	
@@ -31,29 +137,39 @@ class suid{
 	* @access public
 	* @param array $options 
 	*	{
-	*		field: [f1,f2,...],
-	*		filter: [[f1,=,v1],...],
-	*		order: [[f1,ASC|DESC],...],
+	*		field: parseField,
+	*		filter: parseFilter,
+	*		order: [[t,f,ASC],[f,DESC],[f],f,...],
 	*		start: 0,
 	*		limit: 1
 	*	}
 	* @return array
 	*	{
 	*		options: {},
-	*		root: [{f1:v1,f2:v2,...},...],
+	*		root: [{n1:v1,n2:v2,...},...],
 	*		count: 1
 	*	}
 	*/
 	function select($options=array()){
 		extract($options);
 		
-		if($field===null)$field=$this->columnNames;
+		if($field===null){
+			if($this->tableNumber==1)$field=$this->columnNames[0];
+			else{
+				$field=array();
+				for($i=0;$i<$this->tableNumber;$i++){
+					for($j=0,$jj=count($this->columnNames[$i]);$j<$jj;$j++){
+						$field[]=array($this->table[$i],$this->columnNames[$i][$j]);
+					}
+				}
+			}
+		}
 		if($filter===null)$filter=array(array(1,"=",1));
 		if($order===null){
 			$order=array();
-			reset($this->keyNames);
-			while(list($k,$v)=each($this->keyNames)){
-				$order[]=array($v);
+			reset($this->keyNames[0]);
+			while(list($k,$v)=each($this->keyNames[0])){
+				$order[]=$v;
 			}
 		}
 		if($start===null)$start=0;
@@ -62,34 +178,36 @@ class suid{
 		$string="select ";
 		$array=array();
 		
-		$string.="`".implode("`,`",array_fill(0,count($field),"%s"))."` ";
-		$array=array_merge($array,$field);
+		$this->parseField($field,$string,$array);
 		
-		$string.="from `%s` where ";
-		$array[]=$this->table;
+		$string.="from `".implode("`,`",array_fill(0,$this->tableNumber,"%s"))."` where ";
+		$array=array_merge($array,$this->table);
 		
-		list($k,$v)=each($filter);
-		$string.="%s %s '%s' ";
-		$array=array_merge($array,$v);
+		$this->parseFilter($filter,$string,$array);
 		
-		while(list($k,$v)=each($filter)){
-			$string.="and %s %s '%s' ";
-			$array=array_merge($array,$v);
+		for($i=-1;$i<$this->tableNumber;$i++){
+			if($this->condition[$i]){
+				$string.="and ";
+				$this->parseFilter($this->condition[$i],$string,$array);
+			}
 		}
 		
 		if($order){
-			list($k,$v)=each($order);
-			$string.="order by `%s` %s ";
-			if($v[1]===null){
-				$v[1]="ASC";
-				$order[$k]=$v;
-			}
-			$array=array_merge($array,$v);
+			$string.="order by ";
+			$c="";
 			while(list($k,$v)=each($order)){
-				$string.=",`%s` %s ";
-				if($v[1]===null){
-					$v[1]="ASC";
+				is_array($v)||($v=array($v));
+				$string.=$c;
+				$c=", ";
+				$l=count($v);
+				if($l==1){
+					$string.="`%s` %s ";
+					$v['1']="ASC";
 					$order[$k]=$v;
+				}elseif($l==2){
+					$string.="`%s` %s ";
+				}elseif($l==3){
+					$string.="`%s`.`%s` %s ";
 				}
 				$array=array_merge($array,$v);
 			}
@@ -142,24 +260,22 @@ class suid{
 		if($limit===null)$limit=0;
 		
 		$string="update `%s` set ";
-		$array=array($this->table);
+		$array=array($this->table[0]);
 		
-		list($k,$v)=each($value);
-		$string.="`%s`='%s'";
-		$array[]=$k;
-		$array[]=$v;
-		
+		$c="";
 		while(list($k,$v)=each($value)){
-			$string.=",`%s`='%s' ";
+			$string.="$c`%s`='%s' ";
+			$c=",";
 			$array[]=$k;
 			$array[]=$v;
 		}
 		
 		$string.="where ";
 		
-		while(list($k,$v)=each($filter)){
-			$string.="%s %s '%s' ";
-			$array=array_merge($array,$v);
+		$this->parseFilter($filter,$string,$array);
+		if($this->condition[0]){
+			$string.="and ";
+			$this->parseFilter($this->condition[0],$string,$array);
 		}
 		
 		if($limit){
@@ -202,7 +318,7 @@ class suid{
 		if($root===null)return;
 		
 		$string="insert into `%s` ";
-		$array=array($this->table);
+		$array=array($this->table[0]);
 		
 		$field=array();
 		while(list($k,$v)=each($root)){
@@ -266,11 +382,12 @@ class suid{
 		if($limit===null)$limit=0;
 		
 		$string="delete from `%s` where ";
-		$array=array($this->table);
+		$array=array($this->table[0]);
 		
-		while(list($k,$v)=each($filter)){
-			$string.="%s %s '%s' ";
-			$array=array_merge($array,$v);
+		$this->parseFilter($filter,$string,$array);
+		if($this->condition[0]){
+			$string.="and ";
+			$this->parseFilter($this->condition[0],$string,$array);
 		}
 		
 		if($limit){
@@ -298,9 +415,9 @@ class suid{
 	* @access public
 	* @param $options
 	*	{
-	*		filter: [[f1,like,v1],...],
-	*		field: [f1,...],
-	*		group: [f1,f2],
+	*		filter: parseFilter,
+	*		field: parseField,
+	*		group: parseGroup,
 	*		distinct: "dictinct"
 	*	}
 	* @return array
@@ -313,30 +430,38 @@ class suid{
 		extract($options);
 		
 		if($filter===null)$filter=array(array(1,"=",1));
-		if($field===null)$field="*";
+		if($field===null){
+			$field=array();
+			for($i=0;$i<$this->tableNumber;$i++){
+				for($j=0,$jj=count($this->columnNames[$i]);$j<$jj;$j++){
+					$field[]=array($this->table[$i],$this->columnNames[$i][$j]);
+				}
+			}
+			$distinct="distinct";
+		}
 		if($group===null)true;
 		if($distinct===null)$distinct="";else $distinct="distinct";
 		
 		$string="select count($distinct ";
 		$array=array();
 		
-		if($field==="*")$string.="*";
-		else{
-			$string.="`".implode("`,`",array_fill(0,count($field),"%s"))."` ";
-			$array=array_merge($array,$field);
-		}
+		$this->parseField($field,$string,$array);
 		
-		$string.=") as `result` from `%s` where ";
-		$array[]=$this->table;
+		$string.=") as `result` from `".implode("`,`",array_fill(0,count($this->table),"%s"))."` where ";
+		$array=array_merge($array,$this->table);
 		
-		while(list($k,$v)=each($filter)){
-			$string.="%s %s '%s' ";
-			$array=array_merge($array,$v);
+		$this->parseFilter($filter,$string,$array);
+		
+		for($i=-1;$i<$this->tableNumber;$i++){
+			if($this->condition[$i]){
+				$string.="and ";
+				$this->parseFilter($this->condition[$i],$string,$array);
+			}
 		}
 		
 		if($group){
-			$string.="group by `".implode("`,`",array_fill(0,count($group),"%s"))."` ";
-			$array=array_merge($array,$group);
+			$string.="group by ";
+			$this->parseGroup($group,$string,$array);
 		}
 		
 		$this->sql->query($string,$array);
@@ -364,9 +489,9 @@ class suid{
 	* @access public
 	* @param $options
 	*	{
-	*		filter: [[f1,like,v1],...]
-	*		field: [f1,...]
-	*		group: [f1,...]
+	*		filter: parseFilter,
+	*		field: parseField,
+	*		group: parseGroup
 	*	}
 	* @return array||null
 	*	{
@@ -384,27 +509,45 @@ class suid{
 		$string="select ";
 		$array=array();
 		
-		list($k,$v)=each($field);
-		$string.="sum(`%s`) as `%s` ";
-		$array[]=$v;
-		$array[]=$v;
+		$c="";
 		while(list($k,$v)=each($field)){
-			$string.=", sum(`%s`) as `%s` ";
-			$array[]=$v;
-			$array[]=$v;
+			is_array($v)||($v=array($v));
+			$string.=$c;
+			$c=", ";
+			$l=count($v);
+			if($l==1){
+				$string.="sum(`%s`) as `%s` ";
+				$array[]=$v;
+				$array[]=$v;
+			}elseif($l==2){
+				$string.="sum(`%s`.`%s`) as `%s_%s` ";
+				$array[]=$v[0];
+				$array[]=$v[1];
+				$array[]=$v[0];
+				$array[]=$v[1];
+			}elseif($l==3){
+				$string.="sum(`%s`.`%s`) as `%s` ";
+				$array[]=$v[0];
+				$array[]=$v[1];
+				$array[]=$v[3];
+			}
 		}
 		
-		$string.="from `%s` where ";
-		$array[]=$this->table;
+		$string.="from `".implode("`,`",array_fill(0,count($this->table),"%s"))."` where ";
+		$array=array_merge($array,$this->table);
 		
-		while(list($k,$v)=each($filter)){
-			$string.="%s %s '%s' ";
-			$array=array_merge($array,$v);
+		$this->parseFilter($filter,$string,$array);
+		
+		for($i=-1;$i<$this->tableNumber;$i++){
+			if($this->condition[$i]){
+				$string.="and ";
+				$this->parseFilter($this->condition[$i],$string,$array);
+			}
 		}
 		
 		if($group){
-			$string.="group by `".implode("`,`",array_fill(0,count($group),"%s"))."` ";
-			$array=array_merge($array,$group);
+			$string.="group by ";
+			$this->parseGroup($group,$string,$array);
 		}
 		
 		$this->sql->query($string,$array);
@@ -428,14 +571,14 @@ class suid{
 	function id2filter($id){
 		if(is_array($id)){
 			$filter=array();
-			reset($this->keyNames);
-			while(list($k,$v)=each($this->keyNames)){
+			reset($this->keyNames[0]);
+			while(list($k,$v)=each($this->keyNames[0])){
 				if($id[$v]===null)$id[$v]=$id[$k];
 				if($id[$v]===null)return;
 				$filter[]=array($v,"=",$id[$v]);
 			}
-		}elseif($this->keyName){
-			$filter=array(array($this->keyName,"=",$id));
+		}elseif($this->keyName[0]){
+			$filter=array(array($this->keyName[0],"=",$id));
 		}else return;
 		return $filter;
 	}
@@ -449,7 +592,7 @@ class suid{
 	function selectById($id,$field=null){
 		if(!$filter=$this->id2filter($id))return;
 		if($field===null){
-			$field=$this->columnNames;
+			$field=$this->columnNames[0];
 		}elseif(is_string($field)){
 			$field=array($field);
 		}
