@@ -14,8 +14,8 @@ class suid{
 		$this->sql=$sql;
 		$this->database=$database;
 		$this->table=is_array($table)?$table:array($table);
-		is_array($arg=$condition)?($this->condition=$arg):($this->charset=$arg);
-		is_array($arg=$charset)?($this->condition=$arg):($this->charset=$arg);
+		is_array($arg=$condition)?($this->condition=$this->addFilter($arg)):($this->charset=$arg);
+		is_array($arg=$charset)?($this->condition=$this->addFilter($arg)):($this->charset=$arg);
 		$this->sql->setDatabase($this->database);
 		$this->tableNumber=count($this->table);
 		$this->sql->setCharset($this->charset);
@@ -36,6 +36,7 @@ class suid{
 		}
 		$condition=array_fill(-1,$this->tableNumber+1,array());
 		while(list($k,$v)=each($this->condition)){
+			is_array($v)||($v=array($v));
 			$l=count($v);
 			if($l==3){
 				for($i=0;$i<$this->tableNumber;$i++){
@@ -65,7 +66,7 @@ class suid{
 	* @param $string
 	* @param $array
 	*/
-	public function parseField($field,&$string,&$array){
+	public function parseField(&$field,&$string="",&$array=array()){
 		$c="";
 		while(list($k,$v)=each($field)){
 			is_array($v)||($v=array($v));
@@ -84,20 +85,40 @@ class suid{
 	}
 	
 	/**
+	* function to andFilter
+	* @access public
+	* @param filter[,filter[,...]]
+	* @return filter
+	*/
+	public function addFilter(){
+		$filters=func_get_args();
+		$filter=array();
+		while(list($k,$v)=each($filters)){
+			is_array($v[0])||($v=array($v));
+			$filter=array_merge($filter,$v);
+		}
+		return $filter;
+	}
+	
+	/**
 	* function to parseFilter
 	* @access public
 	* @param $filter
-	*	[[t1,f1,like,t2,f2],[t,f,like,v],[f,=,v],...]
+	*	[[t1,f1,like,t2,f2],[t,f,like,v],[f,=,v],[s],s,...] or one element.
 	* @param $string
 	* @param $array
 	*/
-	public function parseFilter($filter,&$string,&$array){
+	public function parseFilter(&$filter,&$string="",&$array=array()){
+		$filter=$this->addFilter($filter);
 		$c="";
 		while(list($k,$v)=each($filter)){
+			is_array($v)||($v=array($v));
 			$string.=$c;
 			$c="and ";
 			$l=count($v);
-			if($l==3){
+			if($l==1){
+				$string.="%s ";
+			}elseif($l==3){
 				$string.="%s %s '%s' ";
 			}elseif($l==4){
 				$string.="`%s`.`%s` %s '%s' ";
@@ -116,7 +137,7 @@ class suid{
 	* @param $string
 	* @param $array
 	*/
-	public function parseGroup($group,&$string,&$array){
+	public function parseGroup(&$group,&$string="",&$array=array()){
 		$c="";
 		while(list($k,$v)=each($group)){
 			is_array($v)||($v=array($v));
@@ -164,7 +185,7 @@ class suid{
 				}
 			}
 		}
-		if($filter===null)$filter=array(array(1,"=",1));
+		if($filter===null)$filter=1;
 		if($order===null){
 			$order=array();
 			reset($this->keyNames[0]);
@@ -255,7 +276,7 @@ class suid{
 	function update($options){
 		extract($options);
 		
-		if($filter===null)$filter=array(array(1,"=",1));
+		if($filter===null)$filter=1;
 		if($value===null)return;
 		if($limit===null)$limit=0;
 		
@@ -378,7 +399,7 @@ class suid{
 	function delete($options){
 		extract($options);
 		
-		if($filter===null)$filter=array(array(1,"=",1));
+		if($filter===null)$filter=1;
 		if($limit===null)$limit=0;
 		
 		$string="delete from `%s` where ";
@@ -429,7 +450,7 @@ class suid{
 	function count($options){
 		extract($options);
 		
-		if($filter===null)$filter=array(array(1,"=",1));
+		if($filter===null)$filter=1;
 		if($field===null){
 			$field=array();
 			for($i=0;$i<$this->tableNumber;$i++){
@@ -502,7 +523,7 @@ class suid{
 	function sum($options){
 		extract($options);
 		
-		if($filter===null)$filter=array(array(1,"=",1));
+		if($filter===null)$filter=1;
 		if($field===null)return;
 		if($group===null)true;
 		
