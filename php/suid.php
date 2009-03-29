@@ -94,8 +94,17 @@ class suid{
 		$filters=func_get_args();
 		$filter=array();
 		while(list($k,$v)=each($filters)){
+			//convert element to filter
 			is_array($v[0])||($v=array($v));
-			$filter=array_merge($filter,$v);
+			//format the filter
+			$v=array_values($v);
+			//if not empty
+			if($v[0]){
+				//add [filter,...] to one filter
+				is_array($v[0][0])&&($v=call_user_method_array("addFilter",$this,$v));
+				//merge
+				$filter=array_merge($filter,$v);
+			}
 		}
 		return $filter;
 	}
@@ -110,23 +119,30 @@ class suid{
 	*/
 	public function parseFilter(&$filter,&$string="",&$array=array()){
 		$filter=$this->addFilter($filter);
+		$string.=" ";
 		$c="";
 		while(list($k,$v)=each($filter)){
 			is_array($v)||($v=array($v));
-			$string.=$c;
-			$c="and ";
 			$l=count($v);
-			if($l==1){
-				$string.="%s ";
+			if($l==1&&is_string($v[0])){
+				$string.="{$c}%s ";
+				$array=array_merge($array,$v);
+				$c="and ";
 			}elseif($l==3){
-				$string.="%s %s '%s' ";
+				$string.="{$c}%s %s '%s' ";
+				$array=array_merge($array,$v);
+				$c="and ";
 			}elseif($l==4){
-				$string.="`%s`.`%s` %s '%s' ";
+				$string.="{$c}`%s`.`%s` %s '%s' ";
+				$array=array_merge($array,$v);
+				$c="and ";
 			}elseif($l==5){
-				$string.="`%s`.`%s` %s `%s`.`%s` ";
+				$string.="{$c}`%s`.`%s` %s `%s`.`%s` ";
+				$array=array_merge($array,$v);
+				$c="and ";
 			}
-			$array=array_merge($array,$v);
 		}
+		if($c=="")$string.="1 ";
 	}
 	
 	/**
@@ -185,7 +201,6 @@ class suid{
 				}
 			}
 		}
-		if($filter===null)$filter=1;
 		if($order===null){
 			$order=array();
 			reset($this->keyNames[0]);
@@ -204,14 +219,7 @@ class suid{
 		$string.="from `".implode("`,`",array_fill(0,$this->tableNumber,"%s"))."` where ";
 		$array=array_merge($array,$this->table);
 		
-		$this->parseFilter($filter,$string,$array);
-		
-		for($i=-1;$i<$this->tableNumber;$i++){
-			if($this->condition[$i]){
-				$string.="and ";
-				$this->parseFilter($this->condition[$i],$string,$array);
-			}
-		}
+		$this->parseFilter($this->addFilter($filter,$this->condition),$string,$array);
 		
 		if($order){
 			$string.="order by ";
@@ -276,7 +284,6 @@ class suid{
 	function update($options){
 		extract($options);
 		
-		if($filter===null)$filter=1;
 		if($value===null)return;
 		if($limit===null)$limit=0;
 		
@@ -293,11 +300,7 @@ class suid{
 		
 		$string.="where ";
 		
-		$this->parseFilter($filter,$string,$array);
-		if($this->condition[0]){
-			$string.="and ";
-			$this->parseFilter($this->condition[0],$string,$array);
-		}
+		$this->parseFilter($this->addFilter($filter,$this->condition[0]),$string,$array);
 		
 		if($limit){
 			$string.="limit %d";
@@ -399,17 +402,12 @@ class suid{
 	function delete($options){
 		extract($options);
 		
-		if($filter===null)$filter=1;
 		if($limit===null)$limit=0;
 		
 		$string="delete from `%s` where ";
 		$array=array($this->table[0]);
 		
-		$this->parseFilter($filter,$string,$array);
-		if($this->condition[0]){
-			$string.="and ";
-			$this->parseFilter($this->condition[0],$string,$array);
-		}
+		$this->parseFilter($this->addFilter($filter,$this->condition[0]),$string,$array);
 		
 		if($limit){
 			$string.="limit %d";
@@ -471,14 +469,7 @@ class suid{
 		$string.=") as `result` from `".implode("`,`",array_fill(0,$this->tableNumber,"%s"))."` where ";
 		$array=array_merge($array,$this->table);
 		
-		$this->parseFilter($filter,$string,$array);
-		
-		for($i=-1;$i<$this->tableNumber;$i++){
-			if($this->condition[$i]){
-				$string.="and ";
-				$this->parseFilter($this->condition[$i],$string,$array);
-			}
-		}
+		$this->parseFilter($this->addFilter($filter,$this->condition),$string,$array);
 		
 		if($group){
 			$string.="group by ";
@@ -557,14 +548,7 @@ class suid{
 		$string.="from `".implode("`,`",array_fill(0,$this->tableNumber,"%s"))."` where ";
 		$array=array_merge($array,$this->table);
 		
-		$this->parseFilter($filter,$string,$array);
-		
-		for($i=-1;$i<$this->tableNumber;$i++){
-			if($this->condition[$i]){
-				$string.="and ";
-				$this->parseFilter($this->condition[$i],$string,$array);
-			}
-		}
+		$this->parseFilter($this->addFilter($filter,$this->condition),$string,$array);
 		
 		if($group){
 			$string.="group by ";

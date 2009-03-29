@@ -2,6 +2,7 @@
 abstract class sql{
 	var $id;
 	var $result;
+	var $lastClause;
 	function sql($server,$username="",$password="",$database=null,$charset=null){
 		$this->id=$this->connect($server,$username,$password);
 		$database&&$this->setDatabase($database);
@@ -61,8 +62,8 @@ abstract class sql{
 	}
 	function executef($format,$array){
 		$array=$this->escapeArray($array);
-		$sql=call_user_func_array("sprintf",array_merge(array($format),$array));
-		return $this->execute($sql);
+		$this->lastClause=call_user_func_array("sprintf",array_merge(array($format),$array));
+		return $this->execute($this->lastClause);
 	}
 	function fetchAllFields($result){
 		$return=array();
