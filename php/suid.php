@@ -94,18 +94,51 @@ class suid{
 		$filters=func_get_args();
 		$filter=array();
 		while(list($k,$v)=each($filters)){
-			//convert string element to filter: [element]
-			is_string($v)&&($v=array($v));
-			//must be array
-			if(!is_array($v))continue;
-			//format the filter: [element,...]
-			$v=array_values($v);
-			//and some(NOT all) [filter,...] to one filter
-			is_array($v[0][0])&&($v=call_user_method_array("andFilter",$this,$v));
-			//merge
+			if($this->isLogic($v))$v=array($v);
+			elseif(!$this->isFilter($v)){
+				if(is_array($v))$v=call_user_method_array("andFilter",$this,$v);
+				else $v=array();
+			}
 			$filter=array_merge($filter,$v);
 		}
 		return $filter;
+	}
+	
+	/**
+	* function to isLogic
+	* @access public
+	* @param $logic
+	* @return bool
+	* if $logic is a logic(one element of a filter), returnValue will be true.
+	*/
+	public function isLogic($logic){
+		$conjs=array(
+			"like","not like","=","!=",">","<=","<",">=","in","not in"
+			);
+		return
+			is_string($logic)||
+			(is_array($logic)&&count($logic)==3&&in_array(strtolower($logic[1]),$conjs))||
+			(is_array($logic)&&count($logic)==4&&in_array(strtolower($logic[2]),$conjs))||
+			(is_array($logic)&&count($logic)==5&&in_array(strtolower($logic[2]),$conjs))
+		;
+	}
+	
+	/**
+	* function to isFilter
+	* @access public
+	* @param $filter
+	* @return bool
+	* if $filter is a filter(with logic elments), returnValue will be true.
+	*/
+	public function isFilter($filter){
+		if(is_array($filter)){
+			while(list($k,$v)=each($filter)){
+				if(!$this->isLogic($v))return false;
+			}
+			return true;
+		}else{
+			return false;
+		}
 	}
 	
 	/**
