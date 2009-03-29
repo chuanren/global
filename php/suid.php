@@ -14,8 +14,8 @@ class suid{
 		$this->sql=$sql;
 		$this->database=$database;
 		$this->table=is_array($table)?$table:array($table);
-		is_array($arg=$condition)?($this->condition=$this->addFilter($arg)):($this->charset=$arg);
-		is_array($arg=$charset)?($this->condition=$this->addFilter($arg)):($this->charset=$arg);
+		is_array($arg=$condition)?($this->condition=$this->andFilter($arg)):($this->charset=$arg);
+		is_array($arg=$charset)?($this->condition=$this->andFilter($arg)):($this->charset=$arg);
 		$this->sql->setDatabase($this->database);
 		$this->tableNumber=count($this->table);
 		$this->sql->setCharset($this->charset);
@@ -88,23 +88,22 @@ class suid{
 	* function to andFilter
 	* @access public
 	* @param filter[,filter[,...]]
-	* @return filter
+	* @return filter: [element,...]
 	*/
-	public function addFilter(){
+	public function andFilter(){
 		$filters=func_get_args();
 		$filter=array();
 		while(list($k,$v)=each($filters)){
-			//convert element to filter
-			is_array($v[0])||($v=array($v));
-			//format the filter
+			//convert string element to filter: [element]
+			is_string($v)&&($v=array($v));
+			//must be array
+			if(!is_array($v))continue;
+			//format the filter: [element,...]
 			$v=array_values($v);
-			//if not empty
-			if($v[0]){
-				//add [filter,...] to one filter
-				is_array($v[0][0])&&($v=call_user_method_array("addFilter",$this,$v));
-				//merge
-				$filter=array_merge($filter,$v);
-			}
+			//and some(NOT all) [filter,...] to one filter
+			is_array($v[0][0])&&($v=call_user_method_array("andFilter",$this,$v));
+			//merge
+			$filter=array_merge($filter,$v);
 		}
 		return $filter;
 	}
@@ -113,20 +112,20 @@ class suid{
 	* function to parseFilter
 	* @access public
 	* @param $filter
-	*	[[t1,f1,like,t2,f2],[t,f,like,v],[f,=,v],[s],s,...] or one element.
+	*	[[t1,f1,like,t2,f2],[t,f,like,v],[f,=,v],s,...] or one element.
 	* @param $string
 	* @param $array
 	*/
 	public function parseFilter(&$filter,&$string="",&$array=array()){
-		$filter=$this->addFilter($filter);
+		$filter=$this->andFilter($filter);
 		$string.=" ";
 		$c="";
 		while(list($k,$v)=each($filter)){
-			is_array($v)||($v=array($v));
-			$l=count($v);
-			if($l==1&&is_string($v[0])){
-				$string.="{$c}%s ";
-				$array=array_merge($array,$v);
+			if(is_array($v))$l=count($v);
+			else $l=0;
+			if($l==0&&is_string($v)){
+				$string.="{$c}%s";
+				$array[]=$v;
 				$c="and ";
 			}elseif($l==3){
 				$string.="{$c}%s %s '%s' ";
@@ -219,7 +218,7 @@ class suid{
 		$string.="from `".implode("`,`",array_fill(0,$this->tableNumber,"%s"))."` where ";
 		$array=array_merge($array,$this->table);
 		
-		$this->parseFilter($this->addFilter($filter,$this->condition),$string,$array);
+		$this->parseFilter($this->andFilter($filter,$this->condition),$string,$array);
 		
 		if($order){
 			$string.="order by ";
@@ -300,7 +299,7 @@ class suid{
 		
 		$string.="where ";
 		
-		$this->parseFilter($this->addFilter($filter,$this->condition[0]),$string,$array);
+		$this->parseFilter($this->andFilter($filter,$this->condition[0]),$string,$array);
 		
 		if($limit){
 			$string.="limit %d";
@@ -407,7 +406,7 @@ class suid{
 		$string="delete from `%s` where ";
 		$array=array($this->table[0]);
 		
-		$this->parseFilter($this->addFilter($filter,$this->condition[0]),$string,$array);
+		$this->parseFilter($this->andFilter($filter,$this->condition[0]),$string,$array);
 		
 		if($limit){
 			$string.="limit %d";
@@ -469,7 +468,7 @@ class suid{
 		$string.=") as `result` from `".implode("`,`",array_fill(0,$this->tableNumber,"%s"))."` where ";
 		$array=array_merge($array,$this->table);
 		
-		$this->parseFilter($this->addFilter($filter,$this->condition),$string,$array);
+		$this->parseFilter($this->andFilter($filter,$this->condition),$string,$array);
 		
 		if($group){
 			$string.="group by ";
@@ -548,7 +547,7 @@ class suid{
 		$string.="from `".implode("`,`",array_fill(0,$this->tableNumber,"%s"))."` where ";
 		$array=array_merge($array,$this->table);
 		
-		$this->parseFilter($this->addFilter($filter,$this->condition),$string,$array);
+		$this->parseFilter($this->andFilter($filter,$this->condition),$string,$array);
 		
 		if($group){
 			$string.="group by ";
