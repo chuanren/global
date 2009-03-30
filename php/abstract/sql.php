@@ -60,7 +60,21 @@ abstract class sql{
 		}
 		return $array;
 	}
-	function executef($format,$array){
+	
+	/**
+	* @access public
+	* @param the same to printf, and even more convenient: string, v, [v,..], ...
+	* @return result of excute
+	*/
+	function executef(){
+		$argv=func_get_args();
+		$format=$argv[0];
+		$array=array();
+		for($i=1,$ii=func_num_args();$i<$ii;$i++){
+			$arg=$argv[$i];
+			if(is_array($arg))$array=array_merge($array,$arg);
+			else $array[]=$arg;
+		}
 		$array=$this->escapeArray($array);
 		$this->lastClause=call_user_func_array("sprintf",array_merge(array($format),$array));
 		return $this->execute($this->lastClause);

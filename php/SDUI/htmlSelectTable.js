@@ -9,15 +9,15 @@ Event.observe(sduiHtmlSelectTableThead,"click",function(event){
 		var td;
 		if(td=Event.findElement(event,"td")){
 			var sort=td.readAttribute("field");
-			var dir=sduiHtmlSelectTableOptions.order[0][1];
+			var dir=sduiHtmlSelectTableOptions.order[0][2];
 			dir=(dir=="ASC")?"DESC":"ASC";
 			location="?"+sduiHtmlSelectTableOptions.actionName+'=Select&order[0][0]='+sort+'&order[0][1]='+dir;
 		}
 });
 //set the td.style.backgroundImage by the order
 (function(){
-	var sort=sduiHtmlSelectTableOptions.order[0][0];
-	var dir=sduiHtmlSelectTableOptions.order[0][1];
+	var sort=sduiHtmlSelectTableOptions.order[0][1];
+	var dir=sduiHtmlSelectTableOptions.order[0][2];
 	var td=sduiHtmlSelectTableThead.select('td[field='+sort+']')[0];
 	td.setStyle({
 			backgroundImage: "url(/global/image/blue/"+dir.toLowerCase()+".png)"

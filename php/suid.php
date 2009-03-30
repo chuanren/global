@@ -157,12 +157,11 @@ class suid{
 			if(is_array($v))$l=count($v);
 			else $l=0;
 			if($l==0&&is_string($v)){
-				$string.="{$c}%s";
-				$array[]=$v;
+				$string.="{$c}{$v} ";
 				$c="and ";
 			}elseif($l==3){
-				$string.="{$c}%s %s '%s' ";
-				$array=array_merge($array,$v);
+				$string.="{$c}`%s`.`%s` %s '%s' ";
+				$array=array_merge($array,array($this->table[0]),$v);
 				$c="and ";
 			}elseif($l==4){
 				$string.="{$c}`%s`.`%s` %s '%s' ";
@@ -262,14 +261,11 @@ class suid{
 				$c=", ";
 				$l=count($v);
 				if($l==1){
-					$string.="`%s` %s ";
-					$v['1']="ASC";
-					$order[$k]=$v;
+					$order[$k]=$v=array($this->table[0],$v[0],"ASC");
 				}elseif($l==2){
-					$string.="`%s` %s ";
-				}elseif($l==3){
-					$string.="`%s`.`%s` %s ";
+					$order[$k]=$v=array($this->table[0],$v[0],$v[1]);
 				}
+				$string.="`%s`.`%s` %s ";
 				$array=array_merge($array,$v);
 			}
 		}
@@ -615,7 +611,7 @@ class suid{
 				$filter[]=array($v,"=",$id[$v]);
 			}
 		}elseif($this->keyName[0]){
-			$filter=array(array($this->keyName[0],"=",$id));
+			$filter=array($this->keyName[0],"=",$id);
 		}else return;
 		return $filter;
 	}
@@ -629,7 +625,10 @@ class suid{
 	function selectById($id,$field=null){
 		if(!$filter=$this->id2filter($id))return;
 		if($field===null){
-			$field=$this->columnNames[0];
+			reset($this->columnNames[0]);
+			while(list($k,$v)=each($this->columnNames[0])){
+				$field[]=array($this->table[0],$v);
+			}
 		}elseif(is_string($field)){
 			$field=array($field);
 		}

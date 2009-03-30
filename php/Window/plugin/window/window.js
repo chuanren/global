@@ -1,13 +1,14 @@
 if(!_window){
 	var _window={};
 	Event.observe(window,"load",function(){
-		$A(document.getElementsByClassName("windowAlert")).each(function(div){
-			Event.observe(div.lastChild,"click",function(event){
+		$$(".windowAlert button").each(function(button){
+			Event.observe(button,"click",function(event){
 				Element.extend(this.parentNode.parentNode);
 				this.parentNode.parentNode.remove();
+				location=this.readAttribute("href");
 			});
 		});
-		$A(document.getElementsByClassName("windowTable")).each(function(table){
+		$$(".windowTable").each(function(table){
 			table.writeAttribute("cellspacing","0");
 		});
 	});
