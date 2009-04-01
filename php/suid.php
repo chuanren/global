@@ -74,13 +74,11 @@ class suid{
 			$c=", ";
 			$l=count($v);
 			if($l==1){
-				$field[$k]=$v=array($this->table[0],$v[0]);
-				$string.="`%s`.`%s` ";
+				$field[$k]=$v=array($this->table[0],$v[0],$v[0]);
 			}elseif($l==2){
-				$string.="`%s`.`%s` ";
-			}elseif($l==3){
-				$string.="`%s`.`%s` as `%s` ";
+				$field[$k]=$v=array($v[0],$v[1],$v[1]);
 			}
+			$string.="`%s`.`%s` as `%s` ";
 			$array=array_merge($array,$v);
 		}
 	}

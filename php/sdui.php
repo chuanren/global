@@ -25,8 +25,8 @@ class sdui extends suid{
 		$html="<table id=sduiHtmlSelectTable class=windowTable width=100%>\n";
 		$html.="<thead><tr>";
 		while(list($k,$v)=each($options['field'])){
-			$text=$this->columns[0][$v]['comment']?$this->columns[0][$v]['comment']:$v;
-			$html.="<td field=$v>$text</td>";
+			$text=$this->columns[0][$v[1]]['comment']?$this->columns[0][$v[1]]['comment']:$v[1];
+			$html.="<td field={$v[1]}>$text</td>";
 		}
 		$html.="</tr></thead>\n";
 		$html.="<tbody>\n";
