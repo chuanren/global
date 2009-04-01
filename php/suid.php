@@ -73,12 +73,19 @@ class suid{
 			$string.=$c;
 			$c=", ";
 			$l=count($v);
+			/**
+			* I should write some notes here to avoid mistakes reoccuring again.
+			* @#: not all fields need their as names, for example, in count method.
+			* @#: all fields should be declared in its tables.
+			*/
 			if($l==1){
-				$field[$k]=$v=array($this->table[0],$v[0],$v[0]);
+				$field[$k]=$v=array($this->table[0],$v[0]);
+				$string.="`%s`.`%s` ";
 			}elseif($l==2){
-				$field[$k]=$v=array($v[0],$v[1],$v[1]);
+				$string.="`%s`.`%s` ";
+			}elseif($l==3){
+				$string.="`%s`.`%s` as `%s` ";
 			}
-			$string.="`%s`.`%s` as `%s` ";
 			$array=array_merge($array,$v);
 		}
 	}
