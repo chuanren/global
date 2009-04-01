@@ -74,12 +74,11 @@ class suid{
 			$c=", ";
 			$l=count($v);
 			if($l==1){
-				$string.="`%s` ";
+				$field[$k]=$v=array($this->table[0],$v[0],$v[0]);
 			}elseif($l==2){
-				$string.="`%s`.`%s` ";
-			}elseif($l==3){
-				$string.="`%s`.`%s` as `%s_%s` ";
+				$field[$k]=$v=array($v[0],$v[1],$v[1]);
 			}
+			$string.="`%s`.`%s` as `%s` ";
 			$array=array_merge($array,$v);
 		}
 	}
@@ -160,8 +159,9 @@ class suid{
 				$string.="{$c}{$v} ";
 				$c="and ";
 			}elseif($l==3){
+				$filter[$k]=$v=array($this->table[0],$v[0],$v[1],$v[2]);
 				$string.="{$c}`%s`.`%s` %s '%s' ";
-				$array=array_merge($array,array($this->table[0]),$v);
+				$array=array_merge($array,$v);
 				$c="and ";
 			}elseif($l==4){
 				$string.="{$c}`%s`.`%s` %s '%s' ";
@@ -192,10 +192,9 @@ class suid{
 			$c=", ";
 			$l=count($v);
 			if($l==1){
-				$string.="`%s`";
-			}elseif($l==2){
-				$string.="`%s`.`%s` ";
+				$group[$k]=$v=array($this->table[0],$v[0]);
 			}
+			$string.="`%s`.`%s` ";
 			$array=array_merge($array,$v);
 		}
 	}
