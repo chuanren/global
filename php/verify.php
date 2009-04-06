@@ -58,7 +58,7 @@ class verify extends session{
 		imagepng($image);
 	}
 }
-if(($global['php']['verify']=get_required_files())&&$global['php']['verify'][0]==__file__
+if(preg_match("#/".basename(__file__)."$#",$_SERVER["PHP_SELF"])//the checker is more stable than check the required files
 	&&preg_match("/^(.*)\[getImage\]/",$_SERVER['QUERY_STRING'],$global['php']['verify'])){
 	$global['php']['verify']=new verify($global['php']['verify'][1]);
 	$global['php']['verify']->getImage();

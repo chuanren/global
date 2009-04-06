@@ -23,7 +23,7 @@ class sdui extends suid{
 		$o=$this->select($options);
 		$options=array_merge($options,$o['options']);
 		$html="<table id=sduiHtmlSelectTable class=windowTable width=100%>\n";
-		$html.="<thead><tr>";
+		$html.="<thead><tr windowTip='Click to sort the items.'>";
 		while(list($k,$v)=each($options['field'])){
 			$text=$this->columns[0][$v[1]]['comment']?$this->columns[0][$v[1]]['comment']:$v[1];
 			$html.="<td field={$v[1]}>$text</td>";
