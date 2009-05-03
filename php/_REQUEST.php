@@ -1,11 +1,10 @@
 <?php
-//version: Liu ChuanRen, 08/12/08
-class request{
+class _REQUEST{
 	private $_cache;
 	private $_mode;
 	private $_name;
 	private $_value;
-	function request($name=null,&$cache=null){//the cache is default $_REQUEST for easy to use.
+	function _REQUEST($name=null,&$cache=null){//the cache is default $_REQUEST for easy to use.
 		$this->_name=$name;
 		if($cache===null)$this->_cache=&$_REQUEST;
 		else $this->_cache=&$cache;
@@ -26,6 +25,11 @@ class request{
 			$string.="&$this->_name[$k]=$v&";
 		}
 		return $string;
+	}
+	function checkRefer(){
+		 $string=$_SERVER['HTTP_REFERER'];
+		 $exp=($_SERVER['HTTPS']?"https":"http")."://".$_SERVER['SERVER_NAME'];
+		 return strpos($string,$exp)===0;
 	}
 	function checkValue($name,$regexp,$value=null){
 		if(preg_match($regexp,$this->_value[$name])){
