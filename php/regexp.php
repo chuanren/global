@@ -11,7 +11,7 @@ class regexp{
 		 $exp="/^1[0-9]{10}$/";
 		 return regexp::match($string,$exp);
 	}
-	function isZIP(){//100000
+	function isZIP($string){//100000
 		 $exp="/^[0-9]{6}$/";
 		 return regexp::match($string,$exp);
 	}

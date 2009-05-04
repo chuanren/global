@@ -134,9 +134,9 @@ abstract class sql{
 		}
 		return $keys;
 	}	
-	function query($sql,$array=array()){
-		if($array)return $this->result=$this->executef($sql,$array);
-		else return $this->result=$this->execute($sql);
+	function query(){
+		$argv=func_get_args();
+		return $this->result=call_user_method_array("executef",$this,$argv);
 	}
 	function selectedRows(){
 		return $this->numRows($this->result);
