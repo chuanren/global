@@ -2,11 +2,13 @@
 require_once("suid.php");
 require_once("window.php");
 class sdui extends suid{
+	public $QueryString;
 	public $actionName;
 	public $replaceColumns;
 	public $selectColumns;
 	public function sdui($sql,$database,$table,$charset="utf8"){
 		parent::__construct($sql,$database,$table,$charset);
+		$this->QueryString="";
 		$this->actionName="action";
 		$this->replaceColumns=$this->columns[0];
 		array_shift($this->replaceColumns);
@@ -44,6 +46,7 @@ class sdui extends suid{
 		$html.="</table>";
 		$options['count']=$this->count(array("filter"=>$options['filter']));
 		$options['count']=$options['count']['result'];
+		$options['QueryString']=$this->QueryString;
 		$options['actionName']=$this->actionName;
 		$html.="<script>var sduiHtmlSelectTableOptions=".json_encode($options).";</script>";
 		$html.="<script src=/global/php/SDUI/htmlSelectTable.js></script>";
@@ -92,8 +95,8 @@ class sdui extends suid{
 						if(is_string($v))$_POST['sduiHtmlReplaceForm'][$k]=stripslashes($v);
 					}
 				}
-				if($this->updateById($id,$_POST['sduiHtmlReplaceForm']))$html=window::alert("Succeeded to Update ID={$id}","?{$this->actionName}");
-				else	$html=window::alert("Failed to Update ID={$id}","?{$this->actionName}");
+				if($this->updateById($id,$_POST['sduiHtmlReplaceForm']))$html=window::alert("Succeeded to Update ID={$id}","?{$this->QueryString}&{$this->actionName}");
+				else	$html=window::alert("Failed to Update ID={$id}","?{$this->QueryString}&{$this->actionName}");
 			}else{
 				$html=$this->htmlReplaceForm($id);
 			}
@@ -106,7 +109,7 @@ class sdui extends suid{
 					}
 				}
 				$id=$this->insertById($_POST['sduiHtmlReplaceForm']);
-				$html=window::alert("Succeeded to Insert ID={$id}","?{$this->actionName}");
+				$html=window::alert("Succeeded to Insert ID={$id}","?{$this->QueryString}&{$this->actionName}");
 			}else{
 				$html=$this->htmlReplaceForm();
 			}
@@ -115,10 +118,10 @@ class sdui extends suid{
 			$id=$_GET['id'];
 			$confirm=window::confirm("Confirm to DELETE ID={$id}?");
 			if($confirm=="yes"){
-				if($this->deleteById($id))$html=window::alert("Succeeded to Delete ID={$id}","?{$this->actionName}");
-				else $html=window::alert("Failed to Delete ID={$id}","?{$this->actionName}");
+				if($this->deleteById($id))$html=window::alert("Succeeded to Delete ID={$id}","?{$this->QueryString}&{$this->actionName}");
+				else $html=window::alert("Failed to Delete ID={$id}","?{$this->QueryString}&{$this->actionName}");
 			}elseif($confirm=="no"){
-				$html=window::alert("Canceled to Delete ID: {$id}","?{$this->actionName}");
+				$html=window::alert("Canceled to Delete ID: {$id}","?{$this->QueryString}&{$this->actionName}");
 			}else{
 				$html=$confirm;
 			}
