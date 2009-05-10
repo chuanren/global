@@ -1,5 +1,7 @@
 <?php
-//version: Liu ChuanRen, 07/09/08
+/**
+* this script can also be executed from CLI(Command Line Interface).
+*/
 if(!function_exists('image_type_to_extension')){
 	function image_type_to_extension($image_type, $include_dot=true){
 		$extension = "";
@@ -69,22 +71,13 @@ class picture{
 		if($height){
 			$width=$width_scale;
 			if($keepScale){
-				$min=array("min","max");
-				($min=$min[$MinMax])||($min="min");
-				$scale=$min($width/$this->width,$height/$this->height);
-				$width=$scale*$this->width;
-				$height=$scale*$this->height;
+				$this->setSize($width,$height,$MinMax);
+			}else{
+				$this->setSize($width,$height);
 			}
 		}else{
-			$scale=$width_scale;
-			$width=$scale*$this->width;
-			$height=$scale*$this->height;
+			$this->scale($width_scale);
 		}
-		$blank=imagecreatetruecolor($width,$height);
-		imagecopyresized($blank,$this->handle,0,0,0,0,$width,$height,$this->width,$this->height);
-		$this->handle=$blank;
-		$this->width=imagesx($this->handle);
-		$this->height=imagesy($this->handle);
 		return true;
 	}
 	function save($file=false,$type=false){
@@ -104,6 +97,40 @@ class picture{
 	function setColor($r,$g,$b,$alpha=0){
 		imagecolorallocatealpha($this->handle,$r,$g,$b,$alpha);
 	}
+	function scale($scale){
+		$width=$scale*$this->width;
+		$height=$scale*$this->height;
+		return $this->setSize($width,$height);
+	}
+	function setWidth($width,$keepScale=true){
+		if($keepScale){
+			return $this->scale($width/$this->width);
+		}else{
+			return $this->setSize($width,$this->height);
+		}
+	}
+	function setHeight($height,$keepScale=true){
+		if($keepScale){
+			return $this->scale($height/$this->height);
+		}else{
+			return $this->setSize($this->width,$height);
+		}
+	}
+	function setSize($width,$height,$keepScale=false){
+		if($keepScale===false){
+			$blank=imagecreatetruecolor($width,$height);
+			imagecopyresized($blank,$this->handle,0,0,0,0,$width,$height,$this->width,$this->height);
+			$this->handle=$blank;
+			$this->width=imagesx($this->handle);
+			$this->height=imagesy($this->handle);
+			return $this;
+		}else{
+			$min=array("min","max");
+			($min=$min[$keepScale])||($min="min");
+			$scale=$min($width/$this->width,$height/$this->height);
+			return $this->scale($scale);
+		}
+	}
 	function trueColor(){
 		if (!imageistruecolor($this->handle)){
            $width=imagesx($this->handle);
@@ -113,5 +140,20 @@ class picture{
 		   $this->handle=$blank;
        }
 	}
+}
+$global['php']['picture']['opt']=getopt("w:h:s:");
+if($global['php']['picture']['opt']['w']||$global['php']['picture']['opt']['h']||$global['php']['picture']['opt']['s']){
+	$global['php']['picture']['o']=new picture($argv[1]);
+	if($global['php']['picture']['opt']['w']&&$global['php']['picture']['opt']['h']){
+		$global['php']['picture']['o']->setSize($global['php']['picture']['opt']['w'],$global['php']['picture']['opt']['h'],0);
+	}elseif($global['php']['picture']['opt']['w']){
+		$global['php']['picture']['o']->setWidth($global['php']['picture']['opt']['w']);
+	}elseif($global['php']['picture']['opt']['h']){
+		$global['php']['picture']['o']->setHeight($global['php']['picture']['opt']['h']);
+	}
+	if($global['php']['picture']['opt']['s']){
+		$global['php']['picture']['o']->scale($global['php']['picture']['opt']['s']);
+	}
+	$global['php']['picture']['o']->save($argv[2]);
 }
 ?>
