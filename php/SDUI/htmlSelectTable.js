@@ -11,7 +11,7 @@ Event.observe(sduiHtmlSelectTableThead,"click",function(event){
 			var sort=td.readAttribute("field");
 			var dir=sduiHtmlSelectTableOptions.order[0][2];
 			dir=(dir=="ASC")?"DESC":"ASC";
-			location="?"+sduiHtmlSelectTableOptions.QueryString+"&"+sduiHtmlSelectTableOptions.actionName+'=Select&order[0][0]='+sort+'&order[0][1]='+dir;
+			location="?"+sduiHtmlSelectTableOptions.actionName+'=Select&order[0][0]='+sort+'&order[0][1]='+dir+"&"+sduiHtmlSelectTableOptions.QueryString;
 		}
 });
 //set the td.style.backgroundImage by the order
@@ -28,9 +28,9 @@ var sduiHtmlSelectTableTbody=$('sduiHtmlSelectTable').select("tbody")[0];
 setPointer(sduiHtmlSelectTableTbody);
 //set contextMenu of tbody.tr
 if(!sduiHtmlSelectTableOptions.contextMenu)sduiHtmlSelectTableOptions.contextMenu=[
-	['Update','?'+sduiHtmlSelectTableOptions.QueryString+"&"+sduiHtmlSelectTableOptions.actionName+'=Update&id='],
-	['Delete','?'+sduiHtmlSelectTableOptions.QueryString+"&"+sduiHtmlSelectTableOptions.actionName+'=Delete&id='],
-	['Insert','?'+sduiHtmlSelectTableOptions.QueryString+"&"+sduiHtmlSelectTableOptions.actionName+'=Insert&']
+	['Update','?'+sduiHtmlSelectTableOptions.actionName+'=Update'+"&"+sduiHtmlSelectTableOptions.QueryString+'&id='],
+	['Delete','?'+sduiHtmlSelectTableOptions.actionName+'=Delete'+"&"+sduiHtmlSelectTableOptions.QueryString+'&id='],
+	['Insert','?'+sduiHtmlSelectTableOptions.actionName+'=Insert'+"&"+sduiHtmlSelectTableOptions.QueryString+'&']
 ];
 if(sduiHtmlSelectTableOptions.contextMenu.length)sduiHtmlSelectTableTbody.select("tr").each(function(tr){
 	var id=tr.readAttribute('sduiID');
@@ -48,14 +48,16 @@ Element.update($('sduiHtmlSelectTable').select("tfoot td")[0],function(){
 		html+=" Page: "+page+"("+pages+") ";
 		var i,ii,t;
 		for(i=Math.max(1,page-5),ii=page;i<ii;i++){
-			html+="<a href=?"+sduiHtmlSelectTableOptions.QueryString+"&"+sduiHtmlSelectTableOptions.actionName+"=Select&start="
+			html+="<a href=?"+sduiHtmlSelectTableOptions.actionName+"=Select&start="
 			+sduiHtmlSelectTableOptions.limit*(i-1)
+			+"&"+sduiHtmlSelectTableOptions.QueryString
 			+">"+i+"</a> ";
 		}
 		html+=page;
 		for(i=page+i,ii=Math.min(pages,page+5);i<=ii;i++){
 			html+=" <a href=?"+sduiHtmlSelectTableOptions.QueryString+"&"+sduiHtmlSelectTableOptions.actionName+"=Select&start="
 			+sduiHtmlSelectTableOptions.limit*(i-1)
+			+"&"+sduiHtmlSelectTableOptions.QueryString
 			+">"+i+"</a>";
 		}
 		return html;
