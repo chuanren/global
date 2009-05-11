@@ -2,7 +2,13 @@
 require_once("suid.php");
 require_once("window.php");
 class sdui extends suid{
-	public $QueryString;
+	public $base="";
+	public $askmark="?";
+	public $eqnmark="=";
+	public $andmark="&";
+	public $baseParams=array();
+	
+	public $action;
 	public $actionName;
 	public $replaceColumns;
 	public $selectColumns;
@@ -13,6 +19,12 @@ class sdui extends suid{
 		$this->replaceColumns=$this->columns[0];
 		array_shift($this->replaceColumns);
 		$this->selectColumns=$this->columns[0];
+	}
+	public function toUrl($params=array(),$action=null){
+		unset($params[$this->actionName]);
+		$action||($action=$this->action);
+		$params=array_merge(array($this->actionName=>$action),$params);
+		return window::toUrl($params,$this);
 	}
 	public function htmlSelectTable($options=array()){
 		$session=&$_SESSION["sduiHtmlSelectTableOptions_{$this->actionName}"];
@@ -46,9 +58,9 @@ class sdui extends suid{
 		$html.="</table>";
 		$options['count']=$this->count(array("filter"=>$options['filter']));
 		$options['count']=$options['count']['result'];
-		$options['QueryString']=$this->QueryString;
-		$options['actionName']=$this->actionName;
+		$html.="<script>var sdui=".@json_encode($this)."</script>";
 		$html.="<script>var sduiHtmlSelectTableOptions=".json_encode($options).";</script>";
+		$html.="<script src=/global/php/SDUI/sdui.js></script>";
 		$html.="<script src=/global/php/SDUI/htmlSelectTable.js></script>";
 		$html.="<style>@import url(/global/php/SDUI/htmlSelectTable.css);</style>";
 		return $html;
@@ -81,12 +93,14 @@ class sdui extends suid{
 		$html.="<input type=reset value=Reset />";
 		$html.="<input type=submit name=sduiHtmlReplaceFormSubmit value=Submit />";
 		$html.="</form>";
+		$html.="<script>var sdui=".@json_encode($this)."</script>";
 		$html.="<script>var sduiHtmlReplaceFormValues=".json_encode($values).";</script>";
+		$html.="<script src=/global/php/SDUI/sdui.js></script>";
 		$html.="<script src=/global/php/SDUI/htmlReplaceForm.js></script>";
 		return $html;
 	}
 	public function handleRequest(){
-		switch($_GET[$this->actionName]){
+		switch($this->action=$_GET[$this->actionName]){
 		case "Update":
 			$id=$_GET['id'];
 			if($_POST['sduiHtmlReplaceFormSubmit']){
@@ -95,8 +109,8 @@ class sdui extends suid{
 						if(is_string($v))$_POST['sduiHtmlReplaceForm'][$k]=stripslashes($v);
 					}
 				}
-				if($this->updateById($id,$_POST['sduiHtmlReplaceForm']))$html=window::alert("Succeeded to Update ID={$id}","?{$this->actionName}&{$this->QueryString}");
-				else	$html=window::alert("Failed to Update ID={$id}","?{$this->actionName}&{$this->QueryString}");
+				if($this->updateById($id,$_POST['sduiHtmlReplaceForm']))$html=window::alert("Succeeded to Update ID={$id}",$this->toUrl(array(),"Select"));
+				else	$html=window::alert("Failed to Update ID={$id}",$this->toUrl(array(),"Select"));
 			}else{
 				$html=$this->htmlReplaceForm($id);
 			}
@@ -109,7 +123,7 @@ class sdui extends suid{
 					}
 				}
 				$id=$this->insertById($_POST['sduiHtmlReplaceForm']);
-				$html=window::alert("Succeeded to Insert ID={$id}","?{$this->actionName}&{$this->QueryString}");
+				$html=window::alert("Succeeded to Insert ID={$id}",$this->toUrl(array(),"Select"));
 			}else{
 				$html=$this->htmlReplaceForm();
 			}
@@ -118,10 +132,10 @@ class sdui extends suid{
 			$id=$_GET['id'];
 			$confirm=window::confirm("Confirm to DELETE ID={$id}?");
 			if($confirm=="yes"){
-				if($this->deleteById($id))$html=window::alert("Succeeded to Delete ID={$id}","?{$this->actionName}&{$this->QueryString}");
-				else $html=window::alert("Failed to Delete ID={$id}","?{$this->actionName}&{$this->QueryString}");
+				if($this->deleteById($id))$html=window::alert("Succeeded to Delete ID={$id}",$this->toUrl(array(),"Select"));
+				else $html=window::alert("Failed to Delete ID={$id}",$this->toUrl(array(),"Select"));
 			}elseif($confirm=="no"){
-				$html=window::alert("Canceled to Delete ID: {$id}","?{$this->actionName}&{$this->QueryString}");
+				$html=window::alert("Canceled to Delete ID: {$id}",$this->toUrl(array(),"Select"));
 			}else{
 				$html=$confirm;
 			}

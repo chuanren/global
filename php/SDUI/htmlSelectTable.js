@@ -11,7 +11,10 @@ Event.observe(sduiHtmlSelectTableThead,"click",function(event){
 			var sort=td.readAttribute("field");
 			var dir=sduiHtmlSelectTableOptions.order[0][2];
 			dir=(dir=="ASC")?"DESC":"ASC";
-			location="?"+sduiHtmlSelectTableOptions.actionName+'=Select&order[0][0]='+sort+'&order[0][1]='+dir+"&"+sduiHtmlSelectTableOptions.QueryString;
+			location=sdui.toUrl({
+					"order[0][0]": sort,
+					"order[0][1]": dir,
+			});
 		}
 });
 //set the td.style.backgroundImage by the order
@@ -28,9 +31,9 @@ var sduiHtmlSelectTableTbody=$('sduiHtmlSelectTable').select("tbody")[0];
 setPointer(sduiHtmlSelectTableTbody);
 //set contextMenu of tbody.tr
 if(!sduiHtmlSelectTableOptions.contextMenu)sduiHtmlSelectTableOptions.contextMenu=[
-	['Update','?'+sduiHtmlSelectTableOptions.actionName+'=Update'+"&"+sduiHtmlSelectTableOptions.QueryString+'&id='],
-	['Delete','?'+sduiHtmlSelectTableOptions.actionName+'=Delete'+"&"+sduiHtmlSelectTableOptions.QueryString+'&id='],
-	['Insert','?'+sduiHtmlSelectTableOptions.actionName+'=Insert'+"&"+sduiHtmlSelectTableOptions.QueryString+'&']
+	['Update',sdui.toUrl({id:""},"Update")],
+	['Delete',sdui.toUrl({id:""},"Delete")],
+	['Insert',sdui.toUrl({id:""},"Insert")],
 ];
 if(sduiHtmlSelectTableOptions.contextMenu.length)sduiHtmlSelectTableTbody.select("tr").each(function(tr){
 	var id=tr.readAttribute('sduiID');
@@ -48,16 +51,14 @@ Element.update($('sduiHtmlSelectTable').select("tfoot td")[0],function(){
 		html+=" Page: "+page+"("+pages+") ";
 		var i,ii,t;
 		for(i=Math.max(1,page-5),ii=page;i<ii;i++){
-			html+="<a href=?"+sduiHtmlSelectTableOptions.actionName+"=Select&start="
-			+sduiHtmlSelectTableOptions.limit*(i-1)
-			+"&"+sduiHtmlSelectTableOptions.QueryString
+			html+="<a href="
+			+sdui.toUrl({start: sduiHtmlSelectTableOptions.limit*(i-1)})
 			+">"+i+"</a> ";
 		}
 		html+=page;
 		for(i=page+i,ii=Math.min(pages,page+5);i<=ii;i++){
-			html+=" <a href=?"+sduiHtmlSelectTableOptions.QueryString+"&"+sduiHtmlSelectTableOptions.actionName+"=Select&start="
-			+sduiHtmlSelectTableOptions.limit*(i-1)
-			+"&"+sduiHtmlSelectTableOptions.QueryString
+			html+=" <a href="
+			+sdui.toUrl({start: sduiHtmlSelectTableOptions.limit*(i-1)})
 			+">"+i+"</a>";
 		}
 		return html;

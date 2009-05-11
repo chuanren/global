@@ -26,6 +26,7 @@ class framework{
 	public $askmark="?";
 	public $eqnmark="=";
 	public $andmark="&";
+	public $baseParams=array();
 	
 	public $value=array();
 	public $action="default";
@@ -53,6 +54,7 @@ class framework{
 		}
 	}
 	public function toUrl($value){
+		$value=array_merge($this->baseParams,$value);
 		$s="{$this->base}{$this->askmark}";
 		while(list($k,$v)=each($value)){
 			$v=urlencode($v);
