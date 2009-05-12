@@ -19,6 +19,9 @@ class sdui extends suid{
 		$this->replaceColumns=$this->columns[0];
 		array_shift($this->replaceColumns);
 		$this->selectColumns=$this->columns[0];
+		foreach($this->selectColumns as $k=>$v){
+			if($v['type']=="text")unset($this->selectColumns[$k]);
+		}
 	}
 	public function toUrl($params=array(),$action=null){
 		unset($params[$this->actionName]);

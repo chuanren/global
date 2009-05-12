@@ -802,7 +802,6 @@ if (class_exists('PEAR_Error')) {
     }
 
 }
-//version: Liu ChuanRen, 05/01/08
 //1: function. in php's older version, the following two functions are not available.
 if(!function_exists("json_decode")){
     function json_decode($code){
@@ -812,7 +811,7 @@ if(!function_exists("json_decode")){
 }
 if(!function_exists("json_encode")){
     function json_encode($var){
-        $t=new Services_JSON();
+        $t=new Services_JSON(32);
         return $t->encode($var);
     }
 }
