@@ -154,7 +154,7 @@ function inputEditor(input,lazyLoad){
 			Event.stop(event);
 		}
 	});
-	Event.observe(_editor.textareas[input.id],"keydown",function(event){
+	Event.observe(input,"keydown",function(event){
 		if(event.keyCode==116){
 			editor(input.id);
 			Event.stop(event);
