@@ -5,6 +5,7 @@ select	(need: )
 liveSelect	(need: position.js)
 calendar	(calendar.js)
 editor	(need: editor.js)
+fullScreen	(need: prototype.js)
 */
 var _input={};
 _input._id=-1;
@@ -145,4 +146,33 @@ function inputCalendar(input,option){
 }
 function inputEditor(input){
 	editor(input.id);
+}
+function inputFullScreen(input){
+	input.inputFullScreened=false;
+	input.inputFullScreenStyle={
+		position: input.style.position,
+		left: input.style.left,
+		top: input.style.top,
+		width: input.style.width,
+		height: input.style.height
+	};
+	Event.observe(input,"keydown",function(event){
+			if(event.keyCode==122){
+				if(this.inputFullScreened){
+					this.inputFullScreened=false;
+					Object.extend(this.style,this.inputFullScreenStyle);
+				}else{
+					this.inputFullScreened=true;
+					var dim=document.viewport.getDimensions();
+					Object.extend(this.style,{
+							position: "absolute",
+							left: "0px",
+							top: "0px",
+							width: dim.width+"px",
+							height: dim.height+"px"
+					});
+				}
+				Event.stop(event);
+			}
+	});
 }

@@ -1,5 +1,6 @@
 sdui||(sdui={});
 sdui.toUrl=function(params,action){
+	params||(params={});
 	delete params[sdui.actionName];
 	action||(action=sdui.action);
 	var s=[];

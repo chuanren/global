@@ -11,10 +11,7 @@ Event.observe(sduiHtmlSelectTableThead,"click",function(event){
 			var sort=td.readAttribute("field");
 			var dir=sduiHtmlSelectTableOptions.order[0][2];
 			dir=(dir=="ASC")?"DESC":"ASC";
-			location=sdui.toUrl({
-					"order[0][0]": sort,
-					"order[0][1]": dir,
-			});
+			location=sdui.toUrl()+"&order[0][0]="+sort+"&order[0][1]="+dir;
 		}
 });
 //set the td.style.backgroundImage by the order
@@ -33,7 +30,7 @@ setPointer(sduiHtmlSelectTableTbody);
 if(!sduiHtmlSelectTableOptions.contextMenu)sduiHtmlSelectTableOptions.contextMenu=[
 	['Update',sdui.toUrl({id:""},"Update")],
 	['Delete',sdui.toUrl({id:""},"Delete")],
-	['Insert',sdui.toUrl({id:""},"Insert")],
+	['Insert',sdui.toUrl({id:""},"Insert")]
 ];
 if(sduiHtmlSelectTableOptions.contextMenu.length)sduiHtmlSelectTableTbody.select("tr").each(function(tr){
 	var id=tr.readAttribute('sduiID');
