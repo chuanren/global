@@ -4,7 +4,7 @@ readOnly	(need: )
 select	(need: )
 liveSelect	(need: position.js)
 calendar	(calendar.js)
-editor	(need: editor.js)
+editor	(need: editor.js prototype.js)
 fullScreen	(need: prototype.js)
 */
 var _input={};
@@ -144,8 +144,22 @@ function inputCalendar(input,option){
 		_calendar.show(this,this.value);
 	}
 }
-function inputEditor(input){
-	editor(input.id);
+function inputEditor(input,lazyLoad){
+	if(input.inputEditorRan)return;
+	input.inputEditorRan=true;
+	if(!lazyLoad)editor(input.id);
+	Event.observe(window,"keydown",function(event){
+		if(event.keyCode==27&&window.confirm("Close Editor?")){
+			_editor.close(input.id);
+			Event.stop(event);
+		}
+	});
+	Event.observe(_editor.textareas[input.id],"keydown",function(event){
+		if(event.keyCode==116){
+			editor(input.id);
+			Event.stop(event);
+		}
+	});
 }
 function inputFullScreen(input){
 	input.inputFullScreened=false;

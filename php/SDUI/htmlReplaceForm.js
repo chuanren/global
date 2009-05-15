@@ -48,6 +48,7 @@ if(!Object.isArray(sduiHtmlReplaceFormValues)){
 }
 (function(){
 	$$("textarea").each(function(textarea,key){
+			inputEditor(textarea,true);
 			inputFullScreen(textarea);
 	});
 })();
