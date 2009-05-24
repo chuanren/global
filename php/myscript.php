@@ -1,14 +1,13 @@
 <?php
-//version Liu ChuanRen, 12/26/08
 class myscript{
-	var $script;					//backup the script
-	var $debug=false;			//output debug infomation
-	var $max_handle_times=100;	//for bad scripts
-	var $begin;					//code begin position
-	var $end;						//code end position
-	var $current;					//times code function params result
-	var $result;					//the temp result
-	var $functions;				//a array, registered handler
+	var $script;
+	var $debug=false;
+	var $max_handle_times=100;
+	var $begin;		
+	var $end;		
+	var $current;		
+	var $result;		
+	var $functions;		
 	function myscript($script=""){
 		$this->script=$script;
 		$this->result=$this->script;
@@ -79,6 +78,24 @@ class myscript{
 			}
 		}
 		$dir->close();
+	}
+	function loadHandler(){
+		$argv=func_get_args();
+		$argc=count($argv);
+		if($argc==0){//load global/php/MyScript
+			$this->setHandlerByDir(dirname(__file__)."/MyScript");
+		}elseif($argc==1){
+			$path=$argv[0];
+			if(is_file($path)){
+				$this->setHandlerByFile($path);
+			}elseif(is_dir($path)){
+				$this->setHandlerByDir($path);
+			}
+		}elseif($argc==2){
+			$name=$argv[0];
+			$code=$argv[1];
+			$this->setHandler($name,$code);
+		}
 	}
 	function message($flag=false,$content=false){
 		if($this->debug){
