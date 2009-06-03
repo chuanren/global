@@ -53,7 +53,7 @@ Element.update($('sduiHtmlSelectTable').select("tfoot td")[0],function(){
 			+">"+i+"</a> ";
 		}
 		html+=page;
-		for(i=page+i,ii=Math.min(pages,page+5);i<=ii;i++){
+		for(i=page+1,ii=Math.min(pages,page+5);i<=ii;i++){
 			html+=" <a href="
 			+sdui.toUrl({start: sduiHtmlSelectTableOptions.limit*(i-1)})
 			+">"+i+"</a>";

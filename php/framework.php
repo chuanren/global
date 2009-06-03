@@ -53,7 +53,7 @@ class framework{
 			if(substr($v,0,1)!=".")$this->plugins["$path/$v"]=scandir("$path/$v");
 		}
 	}
-	public function toUrl($value){
+	public function toUrl($value=array()){
 		$value=array_merge($this->baseParams,$value);
 		$s="{$this->base}{$this->askmark}";
 		while(list($k,$v)=each($value)){

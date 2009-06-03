@@ -1,11 +1,11 @@
 <?php
-//version: Liu ChuanRen, 07/30/08
 class session{
 	var $_id;
 	var $_cache;
 	var $_name;
 	var $_value;
 	function session($name){
+		$name="globalphpsession_$name";
 		session_start();
 		$this->_id=session_id();
 		$this->_cache=&$_SESSION;
