@@ -1,6 +1,7 @@
 var _editor={
 	path:"/global/FCKeditor/",
 	loaded:{},
+	closed: {},
 	editors: {},
 	frames: {},
 	textareas: {}
@@ -11,6 +12,7 @@ _editor.close=function(id){
 		_editor.frames[id].style.display="none";
 		_editor.textareas[id].style.display="";
 	}
+	_editor.closed[id]=true;
 }
 function editor(id,config){
 	if(_editor.loaded[id]){
@@ -28,4 +30,5 @@ function editor(id,config){
 		_editor.frames[id]=document.getElementById(id+"___Frame");
 		_editor.loaded[id]=true;
 	}
+	_editor.closed[id]=false;
 }

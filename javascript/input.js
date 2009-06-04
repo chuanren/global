@@ -149,7 +149,7 @@ function inputEditor(input,lazyLoad){
 	input.inputEditorRan=true;
 	if(!lazyLoad)editor(input.id);
 	Event.observe(window,"keydown",function(event){
-		if(event.keyCode==27&&window.confirm("Close Editor?")){
+		if(_editor.loaded[input.id]&&!_editor.closed[input.id]&&event.keyCode==27&&window.confirm("Close Editor?")){
 			_editor.close(input.id);
 			Event.stop(event);
 		}
