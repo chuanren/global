@@ -10,6 +10,7 @@ class sdui extends suid{
 	
 	public $action;
 	public $actionName;
+	public $hiddenColumns;
 	public $replaceColumns;
 	public $selectColumns;
 	public function sdui($sql,$database,$table,$charset="utf8"){
@@ -17,7 +18,7 @@ class sdui extends suid{
 		$this->QueryString="";
 		$this->actionName="action";
 		$this->replaceColumns=$this->columns[0];
-		array_shift($this->replaceColumns);
+		$this->hiddenColumns=array(array_shift($this->replaceColumns));
 		$this->selectColumns=$this->columns[0];
 		foreach($this->selectColumns as $k=>$v){
 			if($v['type']=="text")unset($this->selectColumns[$k]);
@@ -88,7 +89,9 @@ class sdui extends suid{
 		while(list($k,$v)=each($this->replaceColumns)){
 			$name=$v['name'];
 			$span=$v['comment']?$v['comment']:$name;
-			$html.="<li><label>$span</label>";
+			$html.="<li";
+			if(in_array($v,$this->hiddenColumns))$html.=" style='display:none;'";
+			$html.="><label>$span</label>";
 			$html.=sql::htmlColumnToInput($v,"sduiHtmlReplaceForm[{$name}]",$row[$name]);
 			$html.="</li>";
 		}
