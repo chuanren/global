@@ -189,6 +189,18 @@ abstract class sql{
 				}
 				$html.="</select>";
 				break;
+			case "date":
+				if($value=='0000-00-00'||!$value)$value=date("Y-m-d");
+				$html="<input id=\"$id\" name=\"$id\" type=\"text\" value=\"$value\" />";
+				break;
+			case "datetime":
+				if($value=='0000-00-00 00:00:00'||!$value)$value=date("Y-m-d H:i:s");
+				$html="<input id=\"$id\" name=\"$id\" type=\"text\" value=\"$value\" />";
+				break;
+			case "timestamp":
+				if($value=='CURRENT_TIMESTAMP'||!$value)$value=date("Y-m-d H:i:s");
+				$html="<input id=\"$id\" name=\"$id\" type=\"text\" maxlength=\"".$type[2]."\" value=\"$value\" />";
+				break;
 			default:
 				$html="<input id=\"$id\" name=\"$id\" type=\"text\" maxlength=\"".$type[2]."\" value=\"$value\" />";
 				break;
