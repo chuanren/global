@@ -32,7 +32,8 @@ if(!sduiHtmlSelectTableOptions.contextMenu)sduiHtmlSelectTableOptions.contextMen
 	['Delete',sdui.toUrl({id:""},"Delete")],
 	['Insert',sdui.toUrl({id:""},"Insert")]
 ];
-if(sduiHtmlSelectTableOptions.contextMenu.length)sduiHtmlSelectTableTbody.select("tr").each(function(tr){
+var sduiHtmlSelectTableTrs=sduiHtmlSelectTableTbody.select("tr");
+if(sduiHtmlSelectTableOptions.contextMenu.length)sduiHtmlSelectTableTrs.each(function(tr){
 	var id=tr.readAttribute('sduiID');
 	var menuArray=[];
 	sduiHtmlSelectTableOptions.contextMenu.each(function(menu,key){
@@ -60,3 +61,17 @@ Element.update($('sduiHtmlSelectTable').select("tfoot td")[0],function(){
 		}
 		return html;
 }());
+//fieldMap
+$H(sduiHtmlSelectTableOptions.fieldMap).each(function(item){
+		var field=item.key;
+		var map=item.value;
+		var index=-1;
+		sduiHtmlSelectTableOptions.field.each(function(item,_index){
+				if(item[1]==field)index=_index;
+		});
+		if(index<0)return;
+		sduiHtmlSelectTableTrs.each(function(tr){
+				var td=tr.select("td")[index];
+				td.update(map[td.innerHTML]);
+		});
+});
