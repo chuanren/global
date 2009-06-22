@@ -4,6 +4,7 @@ class suid{
 	public $database;
 	public $table;
 	public $condition=array();//[[t1,f1,like,t2,f2],[t1,f1,like,v1],[f1,like,v1],...]
+	public $joins=array();
 	public $columns;
 	public $columnNames;
 	public $keyNames;
@@ -56,6 +57,11 @@ class suid{
 			}
 		}
 		$this->condition=$condition;
+	}
+	
+	public function join($table,$condition=array(),$position="inner"){
+		$condition=$this->andFilter($condition);
+		$this->joins[]=array($position,$table,$condition);
 	}
 	
 	/**
@@ -253,8 +259,16 @@ class suid{
 		
 		$this->parseField($field,$string,$array);
 		
-		$string.="from `".implode("`,`",array_fill(0,$this->tableNumber,"%s"))."` where ";
+		$string.="from `".implode("`,`",array_fill(0,$this->tableNumber,"%s"))."` ";
 		$array=array_merge($array,$this->table);
+		
+		foreach($this->joins as $join){
+			$string.="%s join `%s` on ";
+			$array=array_merge($array,array($join[0],$join[1]));
+			$this->parseFilter($join[2],$string,$array);
+		}
+		
+		$string.="where ";
 		
 		$this->parseFilter($this->andFilter($filter,$this->condition),$string,$array);
 		

@@ -1,5 +1,4 @@
 <?php
-//version: php@liuchuanren.com.cn, 12/30/08
 require_once(dirname(__file__)."/abstract/sql.php");
 class odbc extends sql{
 	var $__charset="utf-8";
@@ -10,7 +9,7 @@ class odbc extends sql{
 		return odbc_num_rows($result);
 	}
 	function close(){
-		//return odbc_close($this->id);
+		return odbc_close($this->id);
 	}
 	function connect($server,$username,$password){
 		return odbc_connect($server,$username,$password);
@@ -40,8 +39,36 @@ class odbc extends sql{
 		}
 		return @odbc_field_name($result,$offset);
 	}
+	function fetchAllTableNames($database=null){
+		$tables=odbc_tables($this->id);
+		$names=array();
+		while($table=$this->fetchRow($tables)){
+			$names[]=$table['TABLE_NAME'];
+		}
+		return $names;
+	}
+	function fetchColumn($table,$column){
+		$column=odbc_columns($this->id,"%","%",$table,$column);
+		$column=$this->fetchRow($column);
+		$column['name']=$column['COLUMN_NAME'];
+		$column['key']="";
+		$column['type']=$column['DATA_TYPE'];
+		$column['comment']=$column['REMARKS'];
+		return $column;
+	}
+	function fetchAllColumnNames($table){
+		$columns=odbc_columns($this->id,"%","%",$table);
+		$names=array();
+		while($column=$this->fetchRow($columns)){
+			$names[]=$column['COLUMN_NAME'];
+		}
+		return $names;
+	}
 	function free($result){
-		//return odbc_free_result($result);
+		return odbc_free_result($result);
+	}
+	function insertId(){
+		//not implement
 	}
 	function numRows($result){
 		return odbc_num_rows($result);
@@ -54,13 +81,5 @@ class odbc extends sql{
 	function setDatabase($database){
 	}
 	//end of abstract methods
-	function tables(){
-		$tables=odbc_tables($this->id);
-		return $this->fetchAllRows($tables);
-	}
-	function columns(){
-		$columns=odbc_columns($this->id);
-		return $this->fetchAllRows($tables);
-	}
 }
 ?>
