@@ -3,9 +3,14 @@ if(!_window){
 	Event.observe(window,"load",function(){
 		$$(".windowAlert button").each(function(button){
 			Event.observe(button,"click",function(event){
-				Element.extend(this.parentNode.parentNode);
-				this.parentNode.parentNode.remove();
-				location=this.readAttribute("href");
+				var href=this.readAttribute("href");
+				var container=$(this.parentNode.parentNode);
+				if(href=="#"){
+					container.remove();
+				}else{
+					container.select("span")[0].update("Loading...Please Wait...");
+					location=href;
+				}
 			});
 		});
 		$$(".windowTable").each(function(table){

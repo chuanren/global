@@ -9,7 +9,7 @@ class window extends framework{
 		$this->setPlugins(dirname(__file__)."/Window/plugin");
 	}
 	public function alert($msg,$href="#"){
-		$html="<center><div class=windowAlert>$msg<hr /><button href=$href>OK</button></div></center>";
+		$html="<center><div class=windowAlert><span>$msg</span><hr /><button href=$href>OK</button></div></center>";
 		if($this)$this->stdout[]=$html;
 		return $html;
 	}
@@ -22,7 +22,7 @@ class window extends framework{
 		$confirm=$_GET['windowConfirm'];
 		if($confirm)return $confirm;
 		$queryString=$_SERVER['QUERY_STRING'];
-		$html="<center><div class=windowAlert>$msg<hr /><button href=?{$queryString}&windowConfirm=yes>Yes</button> <button href=?{$queryString}&windowConfirm=no>No</button> <button href=#>Ignore</button></div></center>";
+		$html="<center><div class=windowAlert><span>$msg</span><hr /><button href=?{$queryString}&windowConfirm=yes>Yes</button> <button href=?{$queryString}&windowConfirm=no>No</button> <button href=#>Ignore</button></div></center>";
 		if($this)$this->stdout[]=$html;
 		return $html;
 	}
@@ -33,7 +33,7 @@ class window extends framework{
 		if($this)$this->stdout[]=$html;
 		return $this;
 	}
-	public function toUrl($params,$config=array(
+	public function toUrl($params=array(),$config=array(
 		"base"=>"",
 		"askmark"=>"?",
 		"eqnmark"=>"=",
