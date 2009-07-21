@@ -387,7 +387,7 @@ class suid{
 	function insert($options){
 		extract($options);
 		
-		if($root===null)return;
+		if(!$root)return array("count"=>0,"message"=>"root is empty!");
 		
 		$string="insert into `%s` ";
 		$array=array($this->table[0]);

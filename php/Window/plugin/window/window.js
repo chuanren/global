@@ -38,4 +38,7 @@ if(!_window){
 			});
 		});
 	});
+	Event.observe(window,"beforeunload",function(event){
+			$("windowMessage").update("Loading...Please Wait...Do Not Close This Window!");
+	});
 }

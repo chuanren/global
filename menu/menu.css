@@ -24,7 +24,8 @@
 	color:#fff;
 }
 .menu ul{
-	margin: 0px 0px 0px -40px;
+	margin: 0px;
+	padding: 0px;
 	width: 105px;
 	display: none;
 }

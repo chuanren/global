@@ -18,11 +18,11 @@ class window extends framework{
 		if($this)$this->stdout[]=$html;
 		return $html;
 	}
-	public function confirm($msg){
+	public function confirm($msg,$href=null){
+		if(!$href)$href="?{$_SERVER['QUERY_STRING']}";
 		$confirm=$_GET['windowConfirm'];
 		if($confirm)return $confirm;
-		$queryString=$_SERVER['QUERY_STRING'];
-		$html="<center><div class=windowAlert><span>$msg</span><hr /><button href=?{$queryString}&windowConfirm=yes>Yes</button> <button href=?{$queryString}&windowConfirm=no>No</button> <button href=#>Ignore</button></div></center>";
+		$html="<center><div class=windowAlert><span>$msg</span><hr /><button href={$href}&windowConfirm=yes>Yes</button> <button href={$href}&windowConfirm=no>No</button> <button href=#>Ignore</button></div></center>";
 		if($this)$this->stdout[]=$html;
 		return $html;
 	}
